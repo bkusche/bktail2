@@ -82,7 +82,7 @@ public enum S_LogfileHandler {
 						logfileEventListeners.forEach(l ->l.onDelete(logfileEvent));
 					}
 						
-					Thread.sleep(100L);
+					Thread.sleep(50L);
 				} catch (Throwable e) {
 					// TODO: handle exception
 				}

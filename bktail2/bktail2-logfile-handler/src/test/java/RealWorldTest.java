@@ -15,7 +15,7 @@ public class RealWorldTest {
 		logfileHandler.addLogfileEventListener(new I_LogfileEventListener() {
 			@Override
 			public void onModify(LogfileEvent event) {
-				System.out.println("onModify: "+event.getName());
+				System.out.println("onModify: "+event.getName()+" lines: "+event.getLength());
 			}
 			
 			@Override
@@ -25,7 +25,7 @@ public class RealWorldTest {
 			
 			@Override
 			public void onCreate(LogfileEvent event) {
-				System.out.println("onCreate:"+event.getName());
+				System.out.println("onCreate:"+event.getName()+" lines: "+event.getLength());
 			}
 		});
 	}
