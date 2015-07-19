@@ -10,8 +10,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.bkusche.bktail2.logfilehandler.I_LogfileEventListener;
+import de.bkusche.bktail2.logfilehandler.I_LogfileHandler;
 import de.bkusche.bktail2.logfilehandler.LogfileEvent;
-import de.bkusche.bktail2.logfilehandler.S_LogfileHandler;
+import de.bkusche.bktail2.logfilehandler.impl.S_LogfileHandlerImpl;
 
 public class LogfileHandlerTest {
 
@@ -41,7 +42,7 @@ public class LogfileHandlerTest {
 
 	@Test
 	public void test() throws Exception{
-		S_LogfileHandler logfileHandler = S_LogfileHandler.getInstance();
+		I_LogfileHandler logfileHandler = S_LogfileHandlerImpl.getInstance();
 		
 		System.out.println("using testfile: "+filepath);
 		logfileHandler.addFileToWatch(new File( filepath ));

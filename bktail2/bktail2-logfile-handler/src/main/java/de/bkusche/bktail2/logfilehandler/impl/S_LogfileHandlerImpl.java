@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.bkusche.bktail2.logfilehandler;
+package de.bkusche.bktail2.logfilehandler.impl;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -13,11 +13,16 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import de.bkusche.bktail2.logfilehandler.I_LogfileEventListener;
+import de.bkusche.bktail2.logfilehandler.I_LogfileHandler;
+import de.bkusche.bktail2.logfilehandler.LogfileEvent;
+import de.bkusche.bktail2.logfilehandler.LogfileReadInput;
+
 /**
  * @author bjornkusche
  * 
  */
-public enum S_LogfileHandler {
+public enum S_LogfileHandlerImpl implements I_LogfileHandler{
 
 	INSTANCE;
 
@@ -46,17 +51,17 @@ public enum S_LogfileHandler {
 			.findFirst().get();
 	};
 	
-	private S_LogfileHandler() {
+	private S_LogfileHandlerImpl() {
 		service = Executors.newCachedThreadPool();
 		logfileEventListeners = new LinkedList<>();
 		logfileEvents = new LinkedList<>();
 	}
 
-	public static S_LogfileHandler getInstance() {
+	public static S_LogfileHandlerImpl getInstance() {
 		return INSTANCE;
 	}
 
-	public void addFileToWatch(File filepath) {
+	@Override public void addFileToWatch(File filepath) {
 		//TODO implement evaluations
 		service.execute( () -> {
 			while( true ){
@@ -71,8 +76,8 @@ public enum S_LogfileHandler {
 					} else if (containsLogFile.test(filepath) && filepath.exists()) {
 						LogfileEvent logfileEvent = getLogfileEvent.apply(filepath);
 						long lines = countLines.apply(filepath);
-						if( logfileEvent.getLength() != lines ){
-							logfileEvent.setLength(lines);
+						if( logfileEvent.getLines() != lines ){
+							logfileEvent.setLines(lines);
 							logfileEventListeners.forEach(l -> l.onModify(
 									logfileEvent));
 						}
@@ -90,11 +95,22 @@ public enum S_LogfileHandler {
 		});
 	}
 	
-	public void addLogfileEventListener( I_LogfileEventListener l ){
+	@Override public List<String> readLines( LogfileReadInput logfileReadInput ){
+		List<String> lineRange = new LinkedList<>();
+		try (Stream<String> stream = Files.lines(logfileReadInput.getPath())) {
+			stream.skip(logfileReadInput.getFrom()).limit(logfileReadInput.getTo())
+				.forEach(l -> lineRange.add(l));
+		} catch (Throwable e) {
+			// TODO: handle exception
+		}
+		return lineRange;
+	}
+	
+	@Override public void addLogfileEventListener( I_LogfileEventListener l ){
 		logfileEventListeners.add(l);
 	}
 	
-	public void removeLogfileEventListener( I_LogfileEventListener l ){
+	@Override public void removeLogfileEventListener( I_LogfileEventListener l ){
 		logfileEventListeners.remove(l);
 	}
 }

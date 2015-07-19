@@ -6,17 +6,18 @@ public class LogfileEvent {
 
 	private String name;
 	private Path path;
-	private long length;
+	private long lines;
+	private long delta;
 	
 	public LogfileEvent() {
 	
 	}
 	
 	
-	public LogfileEvent(String name, Path path, long length) {
+	public LogfileEvent(String name, Path path, long lines) {
 		this.name = name;
 		this.path = path;
-		this.length = length;
+		this.lines = lines;
 	}
 
 
@@ -32,11 +33,14 @@ public class LogfileEvent {
 	public void setPath(Path path) {
 		this.path = path;
 	}
-	public long getLength() {
-		return length;
+	public long getLines() {
+		return lines;
 	}
-	public void setLength(long length) {
-		this.length = length;
+	public void setLines(long lines) {
+		this.delta = lines - this.lines;
+		this.lines = lines;
 	}
-	
+	public long getDelta() {
+		return delta;
+	}
 }
