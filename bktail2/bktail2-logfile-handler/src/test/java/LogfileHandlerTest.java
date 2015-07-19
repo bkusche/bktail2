@@ -1,0 +1,82 @@
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import de.bkusche.bktail2.logfilehandler.I_LogfileEventListener;
+import de.bkusche.bktail2.logfilehandler.S_LogfileHandler;
+
+public class LogfileHandlerTest {
+
+	
+	private String filepath = System.getProperty("java.io.tmpdir")+"testfile.log";
+	
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		try {
+			Files.delete(Paths.get(filepath));
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+
+	@After
+	public void tearDown() throws Exception {
+	}
+
+	@Test
+	public void test() throws Exception{
+		S_LogfileHandler logfileHandler = S_LogfileHandler.getInstance();
+		
+		System.out.println("using testfile: "+filepath);
+		logfileHandler.addFileToWatch(new File( filepath ));
+		logfileHandler.addLogfileEventListener(new I_LogfileEventListener() {
+			@Override
+			public void onModify(Path logfile) {
+				System.out.println("onModify: "+logfile);
+			}
+			
+			@Override
+			public void onDelete(Path logfile) {
+				System.out.println("onDelete: "+logfile);
+			}
+			
+			@Override
+			public void onCreate(Path logfile) {
+				System.out.println("onCreate:"+logfile);
+			}
+		});
+		Thread.sleep(1000L);
+		Files.createFile(Paths.get(filepath));
+		Files.setLastModifiedTime(Paths.get(filepath), FileTime.fromMillis(System.currentTimeMillis()));
+		System.out.println("writing");
+		Thread.sleep(1000L);
+		for( int i = 0; i < 5; i++){
+			Files.write(Paths.get(filepath), (i+"\n").getBytes());
+			Thread.sleep(5000L);
+		}
+		
+		System.out.println("deleting");
+		Thread.sleep(1000L);
+		Files.delete(Paths.get(filepath));
+		Thread.sleep(1000L);
+		
+	}
+
+}
