@@ -58,11 +58,11 @@ public enum S_LogfileHandler {
 							if( p.getFileName().toString().equals(filepath.getName())){
 								
 								if( we.kind().equals(StandardWatchEventKinds.ENTRY_CREATE)){
-									logfileEventListeners.forEach( l -> l.onCreate(p) );
+									logfileEventListeners.forEach( l -> l.onCreate(new LogfileEvent(filepath.getName(), p, 0) ) );
 								} else if( we.kind().equals(StandardWatchEventKinds.ENTRY_MODIFY)){
-									logfileEventListeners.forEach( l -> l.onModify(p) );
+									logfileEventListeners.forEach( l -> l.onModify(new LogfileEvent(filepath.getName(), p, 0) ) );
 								} else if( we.kind().equals(StandardWatchEventKinds.ENTRY_DELETE)){
-									logfileEventListeners.forEach( l -> l.onDelete(p) );
+									logfileEventListeners.forEach( l -> l.onDelete(new LogfileEvent(filepath.getName(), p, 0) ) );
 								}
 							}
 						}

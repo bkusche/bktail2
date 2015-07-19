@@ -1,7 +1,5 @@
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 
@@ -12,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.bkusche.bktail2.logfilehandler.I_LogfileEventListener;
+import de.bkusche.bktail2.logfilehandler.LogfileEvent;
 import de.bkusche.bktail2.logfilehandler.S_LogfileHandler;
 
 public class LogfileHandlerTest {
@@ -48,18 +47,18 @@ public class LogfileHandlerTest {
 		logfileHandler.addFileToWatch(new File( filepath ));
 		logfileHandler.addLogfileEventListener(new I_LogfileEventListener() {
 			@Override
-			public void onModify(Path logfile) {
-				System.out.println("onModify: "+logfile);
+			public void onModify(LogfileEvent event) {
+				System.out.println("onModify: "+event.getName());
 			}
 			
 			@Override
-			public void onDelete(Path logfile) {
-				System.out.println("onDelete: "+logfile);
+			public void onDelete(LogfileEvent event) {
+				System.out.println("onDelete: "+event.getName());
 			}
 			
 			@Override
-			public void onCreate(Path logfile) {
-				System.out.println("onCreate:"+logfile);
+			public void onCreate(LogfileEvent event) {
+				System.out.println("onCreate:"+event.getName());
 			}
 		});
 		Thread.sleep(1000L);
