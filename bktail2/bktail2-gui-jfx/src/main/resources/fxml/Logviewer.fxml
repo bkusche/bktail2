@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="480.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.bkusche.bktail2.gui.jfx.LogviewerController">
+   <children>
+      <ScrollPane fitToHeight="true" fitToWidth="true" layoutX="-278.0" layoutY="-302.0" prefHeight="102.0" prefWidth="60.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <content>
+            <ListView fx:id="logContent" prefHeight="200.0" prefWidth="200.0" />
+         </content>
+      </ScrollPane>
+   </children>
+</AnchorPane>
