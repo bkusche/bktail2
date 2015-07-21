@@ -101,15 +101,15 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 
 	@Override
 	public void onModify(LogfileEvent event) {
-		// TODO Auto-generated method stub
+		// TODO trigger reload to obtain the new line number value
+		// TODO modify the rectangle shape 
 		
 	}
 
 	@Override
 	public void onDelete(LogfileEvent event) {
-		// TODO Auto-generated method stub
+		// TODO clear the content
 		
 	}
-
 	
 }
