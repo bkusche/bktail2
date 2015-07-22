@@ -96,6 +96,7 @@ public enum S_LogfileHandlerImpl implements I_LogfileHandler{
 	}
 	
 	@Override public List<String> readLines( LogfileReadInput logfileReadInput ){
+//		System.out.println("loading "+logfileReadInput.getFrom()+" to "+logfileReadInput.getTo());
 		List<String> lineRange = new LinkedList<>();
 		try (Stream<String> stream = Files.lines(logfileReadInput.getPath())) {
 			stream.skip(logfileReadInput.getFrom()).limit(logfileReadInput.getTo())

@@ -4,10 +4,10 @@ import java.awt.ScrollPane;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import com.sun.javafx.scene.control.skin.ListViewSkin;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
@@ -19,17 +19,16 @@ import de.bkusche.bktail2.logfilehandler.LogfileReadInput;
 import de.bkusche.bktail2.logfilehandler.impl.S_LogfileHandlerImpl;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
-import javafx.scene.shape.Rectangle;
 
 @SuppressWarnings({"rawtypes","unchecked"})
 public class LogviewerController implements I_LogfileEventListener, Initializable{
 
 	final String filepath = "/opt/jboss/standalone/log/server.log";
-	final int lines = 80;
+	final int maxLinesToRead = 250;
+	final int reloadThreshold = 125;
 	
 	@FXML ScrollPane scrollPane;
 //	@FXML TextArea logContent;
@@ -41,11 +40,12 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 	private ScheduledExecutorService executorService;
 	private int first;
 	private int last;
-	private double rowHight;
+	private double rowHeight;
 	
 	private Runnable b = () -> {
 		
 	};
+	private LogfileEvent event;
 	
 	public LogviewerController() {
 		
@@ -53,15 +53,19 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 		logfileHandler.addFileToWatch((new File( filepath )));
 		logfileHandler.addLogfileEventListener(this);
 		
-		executorService = Executors.newScheduledThreadPool(1);
+		executorService = Executors.newScheduledThreadPool(2);
 	}
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		
-		ObservableList ob = FXCollections.observableList(new ArrayList<>());
-		logContent.setItems(ob);
+		logContent.setItems(FXCollections.observableList(new ArrayList<>()));
+		//
+		// faking an entry to obtain the rowHeight
 		logContent.getItems().add("start");
+		
+		//
+		// monitoring the view position
 		executorService.execute(() ->{
 			while(true){
 				try {
@@ -69,9 +73,27 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 			        VirtualFlow<?> vf = (VirtualFlow<?>) ts.getChildren().get(0);
 			        first = vf.getFirstVisibleCell().getIndex();
 			        last = vf.getLastVisibleCell().getIndex();
-			        rowHight = vf.getFirstVisibleCell().getHeight();
-			        //System.out.println("##### Scrolling first "+first+" last "+last);
-					Thread.sleep(100L);
+			        rowHeight = vf.getFirstVisibleCell().getHeight();
+//			        System.out.println("##### Scrolling first "+first+" last "+last);
+					Thread.sleep(10L);
+				} catch (Throwable e) {
+					// TODO: handle exception
+				}	
+			}
+		});
+		
+		//
+		// reloading triggered by scrolling 
+		executorService.execute(() ->{
+			int prevFirst = 0;
+			while(true){
+				try {
+					if( first - prevFirst > reloadThreshold || prevFirst - first > reloadThreshold ){
+						load();
+						prevFirst = first;
+					}
+						
+					Thread.sleep(20L);
 				} catch (Throwable e) {
 					// TODO: handle exception
 				}	
@@ -81,26 +103,14 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 
 	@Override
 	public void onCreate(final LogfileEvent event) {
-		Platform.runLater( () -> {
-			logContent.getItems().clear();
-			logfileHandler.readLines(new LogfileReadInput(
-					event.getPath(), 
-					first, 
-					event.getLines() > lines? lines : event.getLines(), 
-					event.getLines())).forEach(l -> logContent.getItems().add(l+"\n"));
-//			//height
-//			logContent.getItems().add("<html><body><div style=\"height:864px;text-align: center;\"></body></html>");
-//			
-			Rectangle r = new Rectangle();
-			r.setHeight((event.getLines()-lines)*rowHight);
-			logContent.getItems().add(r);
-			logContent.getItems().add("end");
-		});
-		
+		this.event = event;
+//		System.out.println( "lines: "+event.getLines() );
+		load();
 	}
 
 	@Override
 	public void onModify(LogfileEvent event) {
+		this.event = event;
 		// TODO trigger reload to obtain the new line number value
 		// TODO modify the rectangle shape 
 		
@@ -108,8 +118,39 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 
 	@Override
 	public void onDelete(LogfileEvent event) {
+		this.event = event;
 		// TODO clear the content
-		
 	}
 	
+	
+	private void load(){
+//		System.out.println( first+" : "+last);
+		Platform.runLater( () -> {
+			
+			long from = first > reloadThreshold? first-reloadThreshold: 0;
+			long to = event.getLines() > first+maxLinesToRead? first+maxLinesToRead : event.getLines(); 
+			
+			List<String> content = logfileHandler.readLines(new LogfileReadInput(
+					event.getPath(), 
+					from,
+					to,
+					event.getLines()));
+			
+			//
+			// remove the old content from the view
+			logContent.getItems().clear();
+			
+			if( first > reloadThreshold ){
+				for( int i = 0; i < from; i++)
+					logContent.getItems().add(new String());
+			}
+			
+			content.forEach(l -> logContent.getItems().add(l+"\n"));
+			
+			if( last - reloadThreshold < event.getLines() ){
+				for( long i = to; i < event.getLines(); i++)
+					logContent.getItems().add(new String());
+			}
+		});
+	}
 }
