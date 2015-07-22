@@ -37,6 +37,28 @@
 				</configuration>
 			</plugin>-->
 
+	       <plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>de.bkusche.bktail2.gui.jfx.MainApp</mainClass>
+								</manifest>
+							</archive>
+							<descriptors>
+								<descriptor>standalone-assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
