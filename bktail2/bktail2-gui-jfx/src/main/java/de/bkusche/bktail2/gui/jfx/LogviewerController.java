@@ -23,7 +23,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
 
-@SuppressWarnings({"rawtypes","unchecked"})
+@SuppressWarnings({"rawtypes","unchecked", "restriction"})
 public class LogviewerController implements I_LogfileEventListener, Initializable{
 
 	final String filepath = "/opt/jboss/standalone/log/server.log";
@@ -61,7 +61,7 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 		
 		logContent.setItems(FXCollections.observableList(new ArrayList<>()));
 		//
-		// faking an entry to obtain the rowHeight
+		// HACK: faking an entry to obtain the rowHeight
 		logContent.getItems().add("start");
 		
 		//
@@ -76,9 +76,7 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 			        rowHeight = vf.getFirstVisibleCell().getHeight();
 //			        System.out.println("##### Scrolling first "+first+" last "+last);
 					Thread.sleep(10L);
-				} catch (Throwable e) {
-					// TODO: handle exception
-				}	
+				} catch (Throwable e) {}	
 			}
 		});
 		
@@ -94,38 +92,45 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 					}
 						
 					Thread.sleep(20L);
-				} catch (Throwable e) {
-					// TODO: handle exception
-				}	
+				} catch (Throwable e) {}	
 			}
 		});
+		
+		//
+		//removing fake line from above
+		logContent.getItems().clear();
 	}
+	
 
-	@Override
-	public void onCreate(final LogfileEvent event) {
+	@Override public void onCreate(final LogfileEvent event) {
 		this.event = event;
 //		System.out.println( "lines: "+event.getLines() );
 		load();
 	}
 
-	@Override
-	public void onModify(LogfileEvent event) {
+	@Override public void onModify(LogfileEvent event) {
 		this.event = event;
-		// TODO trigger reload to obtain the new line number value
-		// TODO modify the rectangle shape 
-		
+		load();
 	}
 
-	@Override
-	public void onDelete(LogfileEvent event) {
-		this.event = event;
-		// TODO clear the content
+	@Override public void onDelete(LogfileEvent event) {
+		this.event = null;
+		this.first = 0;
+		this.last = 0;
+		load();
 	}
 	
 	
 	private void load(){
 //		System.out.println( first+" : "+last);
 		Platform.runLater( () -> {
+			
+			if( event == null ){
+				if( !logContent.getItems().isEmpty() ){
+					logContent.getItems().clear();
+				}
+				return;
+			}
 			
 			long from = first > reloadThreshold? first-reloadThreshold: 0;
 			long to = event.getLines() > first+maxLinesToRead? first+maxLinesToRead : event.getLines(); 
