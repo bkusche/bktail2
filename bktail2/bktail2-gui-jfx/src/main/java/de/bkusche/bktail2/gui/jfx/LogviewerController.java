@@ -26,7 +26,7 @@ import javafx.scene.control.ListView;
 @SuppressWarnings({"rawtypes","unchecked", "restriction"})
 public class LogviewerController implements I_LogfileEventListener, Initializable{
 
-	final String filepath = "/opt/jboss/standalone/log/server.log";
+//	final String filepath = "/opt/jboss/standalone/log/server.log";
 	final int maxLinesToRead = 250;
 	final int reloadThreshold = 125;
 	
@@ -45,11 +45,16 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 	public LogviewerController() {
 		
 		logfileHandler = S_LogfileHandlerImpl.getInstance();
-		logfileHandler.addFileToWatch((new File( filepath )));
+//		logfileHandler.addFileToWatch((new File( filepath )));
 		logfileHandler.addLogfileEventListener(this);
 		
 		executorService = Executors.newScheduledThreadPool(2);
 	}
+	
+	public void init( File logfile ){
+		logfileHandler.addFileToWatch(logfile);
+	}
+	
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {

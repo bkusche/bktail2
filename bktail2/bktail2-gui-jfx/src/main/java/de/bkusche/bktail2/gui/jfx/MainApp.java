@@ -14,7 +14,7 @@ public class MainApp extends Application {
 
 	public void start(Stage stage) throws Exception {
 
-		String fxmlFile = "/fxml/Logviewer.fxml";
+		String fxmlFile = "/fxml/TabbedMainView.fxml";
 
 		FXMLLoader loader = new FXMLLoader();
 		Parent rootNode = (Parent) loader.load(getClass().getResourceAsStream(fxmlFile));
