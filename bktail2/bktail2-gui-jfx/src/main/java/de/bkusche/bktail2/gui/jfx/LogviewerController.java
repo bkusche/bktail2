@@ -40,11 +40,6 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 	private ScheduledExecutorService executorService;
 	private int first;
 	private int last;
-	private double rowHeight;
-	
-	private Runnable b = () -> {
-		
-	};
 	private LogfileEvent event;
 	
 	public LogviewerController() {
@@ -60,9 +55,6 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 	public void initialize(URL location, ResourceBundle resources) {
 		
 		logContent.setItems(FXCollections.observableList(new ArrayList<>()));
-		//
-		// HACK: faking an entry to obtain the rowHeight
-		logContent.getItems().add("start");
 		
 		//
 		// monitoring the view position
@@ -73,7 +65,6 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 			        VirtualFlow<?> vf = (VirtualFlow<?>) ts.getChildren().get(0);
 			        first = vf.getFirstVisibleCell().getIndex();
 			        last = vf.getLastVisibleCell().getIndex();
-			        rowHeight = vf.getFirstVisibleCell().getHeight();
 //			        System.out.println("##### Scrolling first "+first+" last "+last);
 					Thread.sleep(10L);
 				} catch (Throwable e) {}	
@@ -95,10 +86,6 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 				} catch (Throwable e) {}	
 			}
 		});
-		
-		//
-		//removing fake line from above
-		logContent.getItems().clear();
 	}
 	
 
