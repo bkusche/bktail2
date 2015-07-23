@@ -6,8 +6,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import com.sun.javafx.scene.control.skin.ListViewSkin;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
@@ -16,7 +16,7 @@ import de.bkusche.bktail2.logfilehandler.I_LogfileEventListener;
 import de.bkusche.bktail2.logfilehandler.I_LogfileHandler;
 import de.bkusche.bktail2.logfilehandler.LogfileEvent;
 import de.bkusche.bktail2.logfilehandler.LogfileReadInput;
-import de.bkusche.bktail2.logfilehandler.impl.S_LogfileHandlerImpl;
+import de.bkusche.bktail2.logfilehandler.impl.LogfileHandlerImpl;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -26,9 +26,9 @@ import javafx.scene.control.ListView;
 @SuppressWarnings({"rawtypes","unchecked", "restriction"})
 public class LogviewerController implements I_LogfileEventListener, Initializable{
 
-//	final String filepath = "/opt/jboss/standalone/log/server.log";
-	final int maxLinesToRead = 250;
-	final int reloadThreshold = 125;
+	private static final String EMPTY = "";
+	final int maxLinesToRead = 300;
+	final int reloadThreshold = 250;
 	
 	@FXML ScrollPane scrollPane;
 //	@FXML TextArea logContent;
@@ -37,18 +37,16 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 	
 	private I_LogfileHandler logfileHandler;
 	
-	private ScheduledExecutorService executorService;
+	private ExecutorService executorService;
 	private int first;
 	private int last;
 	private LogfileEvent event;
 	
 	public LogviewerController() {
 		
-		logfileHandler = S_LogfileHandlerImpl.getInstance();
-//		logfileHandler.addFileToWatch((new File( filepath )));
+		logfileHandler = new LogfileHandlerImpl();
 		logfileHandler.addLogfileEventListener(this);
-		
-		executorService = Executors.newScheduledThreadPool(2);
+		executorService = Executors.newCachedThreadPool();
 	}
 	
 	public void init( File logfile ){
@@ -71,7 +69,7 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 			        first = vf.getFirstVisibleCell().getIndex();
 			        last = vf.getLastVisibleCell().getIndex();
 //			        System.out.println("##### Scrolling first "+first+" last "+last);
-					Thread.sleep(10L);
+					Thread.sleep(50L);
 				} catch (Throwable e) {}	
 			}
 		});
@@ -87,7 +85,7 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 						prevFirst = first;
 					}
 						
-					Thread.sleep(20L);
+					Thread.sleep(60L);
 				} catch (Throwable e) {}	
 			}
 		});
@@ -139,14 +137,14 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 			
 			if( first > reloadThreshold ){
 				for( int i = 0; i < from; i++)
-					logContent.getItems().add(new String());
+					logContent.getItems().add(EMPTY);
 			}
 			
 			content.forEach(l -> logContent.getItems().add(l+"\n"));
 			
 			if( last - reloadThreshold < event.getLines() ){
 				for( long i = to; i < event.getLines(); i++)
-					logContent.getItems().add(new String());
+					logContent.getItems().add(EMPTY);
 			}
 		});
 	}

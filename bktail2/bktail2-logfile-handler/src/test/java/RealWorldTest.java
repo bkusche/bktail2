@@ -4,14 +4,15 @@ import de.bkusche.bktail2.logfilehandler.I_LogfileEventListener;
 import de.bkusche.bktail2.logfilehandler.I_LogfileHandler;
 import de.bkusche.bktail2.logfilehandler.LogfileEvent;
 import de.bkusche.bktail2.logfilehandler.LogfileReadInput;
-import de.bkusche.bktail2.logfilehandler.impl.S_LogfileHandlerImpl;
+import de.bkusche.bktail2.logfilehandler.impl.LogfileHandlerImpl;
 
 public class RealWorldTest {
 
 	public static void main(String[] args) {
 		final String filepath = "/opt/jboss/standalone/log/server.log";
 		final int lines = 80;
-		I_LogfileHandler logfileHandler = S_LogfileHandlerImpl.getInstance();
+//		I_LogfileHandler logfileHandler = S_LogfileHandlerImpl.getInstance();
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
 		
 		System.out.println("using testfile: "+filepath);
 		logfileHandler.addFileToWatch(new File( filepath ));

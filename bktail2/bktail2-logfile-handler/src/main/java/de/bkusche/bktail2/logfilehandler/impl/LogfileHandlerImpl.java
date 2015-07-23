@@ -22,9 +22,9 @@ import de.bkusche.bktail2.logfilehandler.LogfileReadInput;
  * @author bjornkusche
  * 
  */
-public enum S_LogfileHandlerImpl implements I_LogfileHandler{
+public class LogfileHandlerImpl implements I_LogfileHandler{
 
-	INSTANCE;
+//	INSTANCE;
 
 	private ExecutorService service;
 	private List<I_LogfileEventListener> logfileEventListeners;
@@ -51,15 +51,15 @@ public enum S_LogfileHandlerImpl implements I_LogfileHandler{
 			.findFirst().get();
 	};
 	
-	private S_LogfileHandlerImpl() {
+	public LogfileHandlerImpl() {
 		service = Executors.newCachedThreadPool();
 		logfileEventListeners = new LinkedList<>();
 		logfileEvents = new LinkedList<>();
 	}
 
-	public static S_LogfileHandlerImpl getInstance() {
-		return INSTANCE;
-	}
+//	public static S_LogfileHandlerImpl getInstance() {
+//		return INSTANCE;
+//	}
 
 	@Override public void addFileToWatch(File filepath) {
 		//TODO implement evaluations
@@ -87,7 +87,7 @@ public enum S_LogfileHandlerImpl implements I_LogfileHandler{
 						logfileEventListeners.forEach(l ->l.onDelete(logfileEvent));
 					}
 						
-					Thread.sleep(50L);
+					Thread.sleep(150L);
 				} catch (Throwable e) {
 					// TODO: handle exception
 				}

@@ -1,48 +1,27 @@
 package de.bkusche.bktail2.gui.jfx;
 
 import java.io.File;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.util.Callback;
 
-public class TabbedMainController implements Initializable {
+public class TabbedMainController {
 
 	private static final String logViewerFxmlFile = "/fxml/Logviewer.fxml";
 	@FXML TabPane tabpane;
 
-	private FXMLLoader loader;
-	private Node node;
-	private LogviewerController lc;
 	public TabbedMainController() {
-		try {
-			loader = new FXMLLoader();
-			
-		} catch (Throwable e) {
-			throw new RuntimeException("Logviewer initialization has failed with: "+e.getMessage());
-		}
+		
 	}
 	
-
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
-		try {
-			node = (Node)loader.load(getClass().getResourceAsStream(logViewerFxmlFile));
-			lc = loader.<LogviewerController>getController();
-		} catch (Throwable e) {
-			throw new RuntimeException("Logviewer initialization has failed with: "+e.getMessage());
-		}
-	}
-	int t = 0;
 	
 	@FXML
 	public void onDragDroppedEvent(DragEvent e){
@@ -54,12 +33,18 @@ public class TabbedMainController implements Initializable {
             final File file = db.getFiles().get(0);
             Platform.runLater( () -> {
     			try {
-    				lc.init(file);
-    				Tab tab = new Tab("Some title_"+t);
-    				tab.setContent(node);
+    				FXMLLoader loader = new FXMLLoader(getClass().getResource(logViewerFxmlFile));
+    				loader.setControllerFactory(new Callback<Class<?>,Object>(){
+    				    @Override public Object call( Class<?> param){
+    				    	LogviewerController lc = new LogviewerController();
+    				    	lc.init(file);
+    				    	return lc;
+    				    }
+    				  });
+    				Tab tab = new Tab(file.getName());
+    				tab.setContent(loader.load());
     				
     				tabpane.getTabs().add(tab);
-    				t++;
     			} catch (Throwable ex) {
     				// TODO Auto-generated catch block
     				ex.printStackTrace();
