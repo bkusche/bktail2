@@ -87,7 +87,7 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 						logfileEventListeners.forEach(l ->l.onDelete(logfileEvent));
 					}
 						
-					Thread.sleep(150L);
+					Thread.sleep(500L);
 				} catch (Throwable e) {
 					// TODO: handle exception
 				}
