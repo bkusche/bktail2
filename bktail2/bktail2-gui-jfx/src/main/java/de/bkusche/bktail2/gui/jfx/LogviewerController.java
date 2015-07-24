@@ -95,7 +95,6 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 
 	@Override public void onCreate(final LogfileEvent event) {
 		this.event = event;
-//		System.out.println( "lines: "+event.getLines() );
 		bloater();
 		load();
 	}
@@ -128,7 +127,6 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 	}
 	
 	private void load(){
-//		System.out.println( first+" : "+last);
 		
 		long from = first > reloadThreshold? first-reloadThreshold: 0;
 		long to = event.getLines() > first+maxLinesToRead? first+maxLinesToRead : event.getLines(); 
@@ -147,14 +145,7 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 					+" - from: "+from+" : to: "+to+" in "+(System.currentTimeMillis()-start)+" ms");
 			
 			start = System.currentTimeMillis();
-//			//
-//			// remove the old content from the view
-//			logContent.getItems().clear();
-			if( logContent.getItems().size() < event.getLines() )
-				for( int i = logContent.getItems().size(); i < event.getLines(); i++ )
-					logContent.getItems().add(EMPTY);
 			
-//			content.forEach(l -> logContent.getItems().add(l+"\n"));
 			int c = (int)from;
 			for( String s : content) {
 				logContent.getItems().set(c, s);
@@ -164,6 +155,8 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 			System.out.println( "repaint took "+(System.currentTimeMillis()-start)+" ms" );
 		});
 		
+		//
+		//clean up to avoid memory leak's 
 		Platform.runLater(() ->{
 			if( first > reloadThreshold ){
 				for( int i = 0; i < from; i++)
