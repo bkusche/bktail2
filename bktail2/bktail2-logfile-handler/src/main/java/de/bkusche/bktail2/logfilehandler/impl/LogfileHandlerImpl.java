@@ -5,6 +5,7 @@ package de.bkusche.bktail2.logfilehandler.impl;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -24,11 +25,10 @@ import de.bkusche.bktail2.logfilehandler.LogfileReadInput;
  */
 public class LogfileHandlerImpl implements I_LogfileHandler{
 
-//	INSTANCE;
-
-	private ExecutorService service;
-	private List<I_LogfileEventListener> logfileEventListeners;
+	private final ExecutorService service;
+	private final List<I_LogfileEventListener> logfileEventListeners;
 	private List<LogfileEvent> logfileEvents;
+	private final List<String> lineRange;
 	
 	private Function<File, Long> countLines = t -> {
 		try (Stream<String> stream = Files.lines(t.toPath())) {
@@ -55,14 +55,15 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 		service = Executors.newCachedThreadPool();
 		logfileEventListeners = new LinkedList<>();
 		logfileEvents = new LinkedList<>();
+		lineRange = new ArrayList<>();
 	}
 
-//	public static S_LogfileHandlerImpl getInstance() {
-//		return INSTANCE;
-//	}
 
 	@Override public void addFileToWatch(File filepath) {
 		//TODO implement evaluations
+		
+		//
+		//file monitor thread
 		service.execute( () -> {
 			while( true ){
 				try {
@@ -89,7 +90,7 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 						
 					Thread.sleep(500L);
 				} catch (Throwable e) {
-					// TODO: handle exception
+					//
 				}
 			}
 		});
@@ -97,12 +98,14 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 	
 	@Override public List<String> readLines( LogfileReadInput logfileReadInput ){
 //		System.out.println("loading "+logfileReadInput.getFrom()+" to "+logfileReadInput.getTo());
-		List<String> lineRange = new LinkedList<>();
+		//
+		//reusing lineRange list (reference) to avoid unnecessary 0..n references & gc usage  
+		lineRange.clear();
 		try (Stream<String> stream = Files.lines(logfileReadInput.getPath())) {
 			stream.skip(logfileReadInput.getFrom()).limit(logfileReadInput.getTo())
-				.forEach(l -> lineRange.add(l));
+				.forEach(l -> lineRange.add(l)); //TODO evaluate performance especially with large files
 		} catch (Throwable e) {
-			// TODO: handle exception
+			// 
 		}
 		return lineRange;
 	}
