@@ -41,7 +41,7 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 	private int first;
 	private int last;
 	private LogfileEvent event;
-	private final List<String> content;
+	private List<String> content;
 	private ObservableList<String> observableList;
 	private final AtomicBoolean reading;
 	
@@ -160,12 +160,11 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 			reading.set(true);
 			final long start = System.currentTimeMillis();
 			
-			content.clear();
-			content.addAll(logfileHandler.readLines(new LogfileReadInput(
+			content = logfileHandler.readLines(new LogfileReadInput(
 					event.getPath(), 
 					from,
 					to,
-					event.getLines())));
+					event.getLines()));
 			
 			System.out.println( "loading first: "+first+" : last: "+last
 					+" - from: "+from+" : to: "+to+" in "+(System.currentTimeMillis()-start)+" ms");
