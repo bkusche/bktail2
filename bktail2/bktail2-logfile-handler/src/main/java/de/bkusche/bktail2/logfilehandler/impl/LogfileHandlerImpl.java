@@ -101,8 +101,11 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 		//
 		//reusing lineRange list (reference) to avoid unnecessary 0..n references & gc usage  
 		lineRange.clear();
+		long limit = logfileReadInput.getFrom() < logfileReadInput.getTo()? 
+				logfileReadInput.getTo()-logfileReadInput.getFrom():
+				logfileReadInput.getFrom()-logfileReadInput.getTo();	
 		try (Stream<String> stream = Files.lines(logfileReadInput.getPath())) {
-			stream.skip(logfileReadInput.getFrom()).limit(logfileReadInput.getTo())
+			stream.skip(logfileReadInput.getFrom()).limit(limit)
 				.forEach(l -> lineRange.add(l)); //TODO evaluate performance especially with large files
 		} catch (Throwable e) {
 			// 

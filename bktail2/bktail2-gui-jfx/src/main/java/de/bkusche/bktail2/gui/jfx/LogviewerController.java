@@ -167,7 +167,7 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 					event.getLines()));
 			
 			System.out.println( "loading first: "+first+" : last: "+last
-					+" - from: "+from+" : to: "+to+" in "+(System.currentTimeMillis()-start)+" ms");
+					+" - from: "+from+" : to: "+to+" = "+(to-from)+" in "+(System.currentTimeMillis()-start)+" ms");
 			
 		} catch (Throwable e) {
 			e.printStackTrace();
