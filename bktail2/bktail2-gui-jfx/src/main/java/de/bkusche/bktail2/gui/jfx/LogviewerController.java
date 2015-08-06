@@ -49,7 +49,7 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 		
 		logfileHandler = new LogfileHandlerImpl();
 		logfileHandler.addLogfileEventListener(this);
-		executorService = Executors.newFixedThreadPool(5);
+		executorService = Executors.newFixedThreadPool(3);
 		content = new ArrayList<>();
 		reading = new AtomicBoolean(false);
 	}
