@@ -29,7 +29,11 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 	private final List<I_LogfileEventListener> logfileEventListeners;
 	private List<LogfileEvent> logfileEvents;
 	private final List<String> lineRange;
+	private long fileSize = 0;
 	
+	/**
+	 * Count lines of a file
+	 */
 	private Function<File, Long> countLines = t -> {
 		try (Stream<String> stream = Files.lines(t.toPath())) {
 			return stream.count();
@@ -37,6 +41,23 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 		return 0L;
 	};
 	
+	/**
+	 * determines whether the size of a file has changed
+	 */
+	private Predicate<File> fileSizeChanged = f -> {
+		try {
+			long size = Files.size(f.toPath());
+			if( size != fileSize ){
+				fileSize = size;
+				return true;
+			}
+		} catch (Throwable e) {}
+		return false;
+	};
+	
+	/**
+	 * determines whether the reference of a file is stored in the local repository
+	 */
 	private Predicate<File> containsLogFile = t -> {
 		return logfileEvents.stream()
 			.filter( f -> f.getName().equals(t.getName() ) )
@@ -44,6 +65,9 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 			.count() > 0;
 	};
 	
+	/**
+	 * yields the reference of a file and it's meta data from the local repository
+	 */
 	private Function<File, LogfileEvent> getLogfileEvent = t -> {
 		return logfileEvents.stream()
 			.filter( f -> f.getName().equals(t.getName() ) )
@@ -67,6 +91,8 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 		service.execute( () -> {
 			while( true ){
 				try {
+					//
+					//detect file creation
 					if (!containsLogFile.test(filepath) && filepath.exists()) {
 						LogfileEvent logfileEvent = new LogfileEvent( filepath.getName(), 
 								filepath.toPath(),
@@ -74,21 +100,29 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 						logfileEventListeners.forEach(l -> l.onCreate(
 								logfileEvent));
 						logfileEvents.add(logfileEvent);
+						
+					//
+					//detect file modification 	
 					} else if (containsLogFile.test(filepath) && filepath.exists()) {
-						LogfileEvent logfileEvent = getLogfileEvent.apply(filepath);
-						long lines = countLines.apply(filepath);
-						if( logfileEvent.getLines() != lines ){
-							logfileEvent.setLines(lines);
-							logfileEventListeners.forEach(l -> l.onModify(
-									logfileEvent));
+						if( fileSizeChanged.test(filepath) ){
+							LogfileEvent logfileEvent = getLogfileEvent.apply(filepath);
+							long lines = countLines.apply(filepath);
+							if( logfileEvent.getLines() != lines ){
+								logfileEvent.setLines(lines);
+								logfileEventListeners.forEach(l -> l.onModify(
+										logfileEvent));
+							}
 						}
+						
+					//
+					//detect file deletion	
 					} else if (containsLogFile.test(filepath) && !filepath.exists()) {
 						LogfileEvent logfileEvent = getLogfileEvent.apply(filepath);
 						logfileEvents.remove(logfileEvent);
 						logfileEventListeners.forEach(l ->l.onDelete(logfileEvent));
 					}
 						
-					Thread.sleep(500L);
+					Thread.sleep(1000L);
 				} catch (Throwable e) {
 					//
 				}
@@ -106,7 +140,7 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 				logfileReadInput.getFrom()-logfileReadInput.getTo();	
 		try (Stream<String> stream = Files.lines(logfileReadInput.getPath())) {
 			stream.skip(logfileReadInput.getFrom()).limit(limit)
-				.forEach(l -> lineRange.add(l)); //TODO evaluate performance especially with large files
+				.forEach(lineRange::add); //TODO evaluate performance especially with large files
 		} catch (Throwable e) {
 			// 
 		}
