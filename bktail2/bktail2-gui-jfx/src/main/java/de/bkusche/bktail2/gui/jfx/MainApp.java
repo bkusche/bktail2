@@ -23,6 +23,7 @@ public class MainApp extends Application {
 		scene.getStylesheets().add("/styles/styles.css");
 		stage.setTitle("Logviewer");
 		stage.setScene(scene);
+		stage.setOnCloseRequest(e -> System.exit(1) );
 		stage.show();
 	}
 }
