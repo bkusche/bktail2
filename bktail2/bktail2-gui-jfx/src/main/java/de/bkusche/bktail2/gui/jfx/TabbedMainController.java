@@ -1,6 +1,7 @@
 package de.bkusche.bktail2.gui.jfx;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -10,6 +11,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -23,6 +26,7 @@ import javafx.util.Callback;
 public class TabbedMainController implements Initializable{
 
 	private static final String logViewerFxmlFile = "/fxml/Logviewer.fxml";
+	private static final String highlightingFxmlFile = "/fxml/HighlightingView.fxml";
 	@FXML TabPane tabpane;
 	@FXML MenuBar menuBar;
 
@@ -40,10 +44,7 @@ public class TabbedMainController implements Initializable{
 		final Dragboard db = e.getDragboard();
         boolean success = false;
         if (db.hasFiles()) {
-            success = true;
-            // Only get the first file from the list
-//            final File file = db.getFiles().get(0);
-//            openLogTab(file);
+        	success = true;
             db.getFiles().forEach(this::openLogTab);
         }
         e.setDropCompleted(success);
@@ -88,7 +89,20 @@ public class TabbedMainController implements Initializable{
 	
 	@FXML
 	void onOpenHighlighting(ActionEvent event) {
-		System.out.println("onOpenHighlighting");
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(highlightingFxmlFile));
+			Stage stage = new Stage();
+			Parent rootNode = (Parent) loader.load();
+			Scene scene = new Scene(rootNode);
+
+			scene.getStylesheets().add("/styles/styles.css");
+			stage.setTitle("Logviewer");
+			stage.setScene(scene);
+			stage.show();
+		} catch (Throwable e) {
+			//TODO display error message
+			e.printStackTrace();
+		}
 	}
 	
 	private void openLogTab( File logfile ){
