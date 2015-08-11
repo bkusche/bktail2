@@ -24,8 +24,8 @@
                <content>
                   <TableView fx:id="tblContent" editable="true" stylesheets="@../styles/styles.css">
                     <columns>
-                      <TableColumn prefWidth="422.0" text="C1" />
-                      <TableColumn minWidth="0.0" prefWidth="62.0" resizable="false" text="C2" />
+                      <TableColumn fx:id="tblColText" prefWidth="422.0" text="Text" />
+                      <TableColumn fx:id="tblColColor" minWidth="0.0" prefWidth="62.0" resizable="false" text="Color" />
                     </columns>
                      <contextMenu>
                         <ContextMenu fx:id="tblContextMenu">
