@@ -86,17 +86,29 @@ public class HighlightingController {
 
 		HighlightingButtonCell(final TableView<Highlighting> table) {
 			hBox = new HBox();
+			
+			StackPane paddedFgLabel = new StackPane();
+			paddedFgLabel.setPadding(new Insets(1));
+			paddedFgLabel.getChildren().add(new Label("FG"));
+			
 			btnFgColor = new ColorPicker(Color.BLACK); //TODO obtain from main
-//			btnFgColor.set^
+			btnFgColor.setStyle("-fx-color-label-visible: false ;");
 			StackPane paddedFgButton = new StackPane();
 			paddedFgButton.setPadding(new Insets(1));
 			paddedFgButton.getChildren().add(btnFgColor);
 			
+			StackPane paddedBgLabel = new StackPane();
+			paddedBgLabel.setPadding(new Insets(1));
+			paddedBgLabel.getChildren().add(new Label("BG"));
+			
 			btnBgColor = new ColorPicker(Color.WHITE); //TODO obtain from main
+			btnBgColor.setStyle("-fx-color-label-visible: false ;");
 			StackPane paddedBgButton = new StackPane();
 			paddedBgButton.setPadding(new Insets(1));
 			paddedBgButton.getChildren().add(btnBgColor);
+			hBox.getChildren().add(paddedFgLabel);
 			hBox.getChildren().add(paddedFgButton);
+			hBox.getChildren().add(paddedBgLabel);
 			hBox.getChildren().add(paddedBgButton);
 		}
 
@@ -141,8 +153,7 @@ public class HighlightingController {
 	            }
 			}
 		}
-		@Override
-		public void commitEdit(String newValue) {
+		@Override public void commitEdit(String newValue) {
 			super.commitEdit(newValue);
 			((Highlighting) getTableRow().getItem()).setText(newValue);
 		}
