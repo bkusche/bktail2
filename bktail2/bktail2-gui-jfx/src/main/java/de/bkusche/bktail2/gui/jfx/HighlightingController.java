@@ -42,7 +42,8 @@ public class HighlightingController {
     	//
     	//HACK //TODO remove!!!
     	btnText.setValue(Color.BLACK);
-    	highlightings = FXCollections.observableArrayList( new Highlighting("test",btnText.getValue()));
+    	highlightings = FXCollections.observableArrayList( 
+    			new Highlighting("test",btnText.getValue(),btnBackground.getValue()));
     	tblContent.setItems(highlightings);
     	
     	tblColText.setCellValueFactory(new PropertyValueFactory<>("text"));
@@ -62,7 +63,8 @@ public class HighlightingController {
     
     @FXML
     void onAddEntry(ActionEvent event) {
-    	highlightings.add(new Highlighting("CHANGE ME!",btnText.getValue()));
+    	highlightings.add(
+    			new Highlighting("CHANGE ME!",btnText.getValue(),btnBackground.getValue()));
     }
 
     @FXML
@@ -125,8 +127,9 @@ public class HighlightingController {
 	            Highlighting currentHighlighting = getTableRow() == null ? null : (Highlighting)getTableRow().getItem();
 				if( currentHighlighting != null ){	
 					btnFgColor.setValue(currentHighlighting.textColorProperty().getValue());
+					btnBgColor.setValue(currentHighlighting.backgroundColorProperty().getValue());
 					currentHighlighting.textColorProperty().bind(btnFgColor.valueProperty());
-				
+					currentHighlighting.backgroundColorProperty().bind(btnBgColor.valueProperty());
 				}
 				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 				setGraphic(hBox);

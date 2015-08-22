@@ -11,13 +11,14 @@ public class Highlighting {
 	private ObjectProperty<Color> textColor;
 	private ObjectProperty<Color> backgroundColor;
 	
-	public Highlighting(String text, Color textColor) {
+	public Highlighting(String text, Color textColor, Color backgroundColor) {
 		super();
 		this.text = new SimpleStringProperty();
 		this.textColor = new SimpleObjectProperty<>();
 		this.backgroundColor = new SimpleObjectProperty<>();
 		setText(text);
 		setTextColor(textColor);
+		setBackgroundColor(backgroundColor);
 	}
 
 
@@ -37,6 +38,10 @@ public class Highlighting {
 	
 	public final void setTextColor( Color textColor){
 		this.textColor.setValue(textColor);
+	}
+	
+	public final void setBackgroundColor( Color backgroundColor ){
+		this.backgroundColor.setValue(backgroundColor);
 	}
 	
 	public final ObjectProperty<Color> textColorProperty(){
