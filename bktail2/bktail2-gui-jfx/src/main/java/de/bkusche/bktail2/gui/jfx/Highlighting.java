@@ -4,20 +4,20 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.paint.Paint;
+import javafx.scene.paint.Color;
 
 public class Highlighting {
 	private StringProperty text;
-	private ObjectProperty<Paint> textColor;
-	private ObjectProperty<Paint> backgroundColor;
+	private ObjectProperty<Color> textColor;
+	private ObjectProperty<Color> backgroundColor;
 	
-
-	public Highlighting(String text) {
+	public Highlighting(String text, Color textColor) {
 		super();
 		this.text = new SimpleStringProperty();
 		this.textColor = new SimpleObjectProperty<>();
 		this.backgroundColor = new SimpleObjectProperty<>();
 		setText(text);
+		setTextColor(textColor);
 	}
 
 
@@ -35,13 +35,19 @@ public class Highlighting {
 		this.textProperty().set(text);
 	}
 	
-	public final ObjectProperty<Paint> textColorProperty(){
+	public final void setTextColor( Color textColor){
+		this.textColor.setValue(textColor);
+	}
+	
+	public final ObjectProperty<Color> textColorProperty(){
 		return this.textColor;
 	}
 	
-	public final ObjectProperty<Paint> backgroundColorProperty(){
+	public final ObjectProperty<Color> backgroundColorProperty(){
 		return this.backgroundColor;
 	}
+	
+	
 //	public final int getTextColor(){
 //		return this.textColorProperty().
 //	}

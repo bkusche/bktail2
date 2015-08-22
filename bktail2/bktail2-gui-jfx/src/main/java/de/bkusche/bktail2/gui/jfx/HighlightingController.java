@@ -39,7 +39,10 @@ public class HighlightingController {
 
     @FXML
     void initialize() {
-    	highlightings = FXCollections.observableArrayList( new Highlighting("test"));
+    	//
+    	//HACK //TODO remove!!!
+    	btnText.setValue(Color.BLACK);
+    	highlightings = FXCollections.observableArrayList( new Highlighting("test",btnText.getValue()));
     	tblContent.setItems(highlightings);
     	
     	tblColText.setCellValueFactory(new PropertyValueFactory<>("text"));
@@ -59,7 +62,7 @@ public class HighlightingController {
     
     @FXML
     void onAddEntry(ActionEvent event) {
-    	highlightings.add(new Highlighting("CHANGE ME!"));
+    	highlightings.add(new Highlighting("CHANGE ME!",btnText.getValue()));
     }
 
     @FXML
@@ -112,6 +115,7 @@ public class HighlightingController {
 			hBox.getChildren().add(paddedBgButton);
 		}
 
+
 		/** places an add button in the row only if the row is not empty. */
 		@Override protected void updateItem(Boolean item, boolean empty) {
 			super.updateItem(item, empty);
@@ -119,8 +123,10 @@ public class HighlightingController {
 				//
 				//
 	            Highlighting currentHighlighting = getTableRow() == null ? null : (Highlighting)getTableRow().getItem();
-				if( currentHighlighting != null ){
+				if( currentHighlighting != null ){	
+					btnFgColor.setValue(currentHighlighting.textColorProperty().getValue());
 					currentHighlighting.textColorProperty().bind(btnFgColor.valueProperty());
+				
 				}
 				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 				setGraphic(hBox);
