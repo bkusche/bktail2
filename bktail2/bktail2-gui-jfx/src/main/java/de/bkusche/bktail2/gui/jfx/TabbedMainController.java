@@ -109,13 +109,11 @@ public class TabbedMainController implements Initializable{
 		Platform.runLater( () -> {
 			try {
 				FXMLLoader loader = new FXMLLoader(getClass().getResource(logViewerFxmlFile));
-				loader.setControllerFactory(new Callback<Class<?>,Object>(){
-				    @Override public Object call( Class<?> param){
-				    	LogviewerController lc = new LogviewerController();
-				    	lc.init(logfile);
-				    	return lc;
-				    }
-				  });
+				loader.setControllerFactory((p)->{
+			    	LogviewerController lc = new LogviewerController();
+			    	lc.init(logfile);
+			    	return lc;
+				});
 				Tab tab = new Tab(logfile.getName());
 				tab.setContent(loader.load());
 				
