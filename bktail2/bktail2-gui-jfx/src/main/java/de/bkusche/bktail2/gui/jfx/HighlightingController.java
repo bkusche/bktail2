@@ -1,6 +1,8 @@
 package de.bkusche.bktail2.gui.jfx;
 
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -43,7 +45,8 @@ public class HighlightingController {
     	//HACK //TODO remove!!!
     	btnText.setValue(Color.BLACK);
     	highlightings = FXCollections.observableArrayList( 
-    			new Highlighting("test",btnText.getValue(),btnBackground.getValue()));
+    			);
+//    			new Highlighting("test",btnText.getValue(),btnBackground.getValue()));
     	tblContent.setItems(highlightings);
     	
     	tblColText.setCellValueFactory(new PropertyValueFactory<>("text"));
@@ -83,7 +86,7 @@ public class HighlightingController {
     }
     
     
-	private class HighlightingButtonCell extends TableCell<Highlighting, Boolean> {
+	private class HighlightingButtonCell extends TableCell<Highlighting, Boolean> implements ChangeListener<Color> {
 
 		final ColorPicker btnFgColor;
 		final ColorPicker btnBgColor;
@@ -117,7 +120,6 @@ public class HighlightingController {
 			hBox.getChildren().add(paddedBgButton);
 		}
 
-
 		/** places an add button in the row only if the row is not empty. */
 		@Override protected void updateItem(Boolean item, boolean empty) {
 			super.updateItem(item, empty);
@@ -126,10 +128,21 @@ public class HighlightingController {
 				//
 	            Highlighting currentHighlighting = getTableRow() == null ? null : (Highlighting)getTableRow().getItem();
 				if( currentHighlighting != null ){	
-					btnFgColor.setValue(currentHighlighting.textColorProperty().getValue());
-					btnBgColor.setValue(currentHighlighting.backgroundColorProperty().getValue());
+					
+					if( !currentHighlighting.textColorProperty().getValue().toString().equals(
+							btnFgColor.getValue().toString())){
+						btnFgColor.setValue(currentHighlighting.textColorProperty().getValue());
+					}
+					if( !currentHighlighting.backgroundColorProperty().getValue().toString().equals(
+							btnBgColor.getValue().toString())){
+						btnBgColor.setValue(currentHighlighting.backgroundColorProperty().getValue());
+					}
+					
 					currentHighlighting.textColorProperty().bind(btnFgColor.valueProperty());
-					currentHighlighting.backgroundColorProperty().bind(btnBgColor.valueProperty());
+
+					btnBgColor.valueProperty().removeListener(this);
+					btnBgColor.valueProperty().addListener(this);
+					
 				}
 				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 				setGraphic(hBox);
@@ -137,12 +150,21 @@ public class HighlightingController {
 				setGraphic(null);
 			}
 		}
+
+		@Override public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
+			Highlighting currentHighlighting = getTableRow() == null ? null : (Highlighting)getTableRow().getItem();
+			if( currentHighlighting != null ){	
+				currentHighlighting.backgroundColorProperty().set(btnBgColor.getValue());
+			}
+		}
 	}
 
-	private class HighLightingTextCell extends TextFieldTableCell<Highlighting, String>{
+	private class HighLightingTextCell extends TextFieldTableCell<Highlighting, String> implements ChangeListener<Color> {
 		
+		private String defaultStyle = null;
 		public HighLightingTextCell() {
 			super(new DefaultStringConverter());
+			defaultStyle = getStyle();
 		}
 		
 		@Override public void startEdit() {
@@ -156,15 +178,34 @@ public class HighlightingController {
 	            setGraphic(null);
 	            Highlighting currentTask = getTableRow() == null ? null : (Highlighting)getTableRow().getItem();
 	            if( currentTask != null ){
+            		
+	            	setStyle("-fx-background-color: "
+	        				+currentTask.backgroundColorProperty().getValue().toString().replace("0x", "#"));
+	            	
 	            	textFillProperty().bind(currentTask.textColorProperty());
-//	            	styleProperty().
-//	            	backgroundProperty().bind(currentTask.backgroundColorProperty());
+//	            	System.out.println(currentTask.backgroundColorProperty().getValue().toString()
+//	            			+" "+getTableRow().getIndex()
+//	            			+" "+currentTask.getText());
+
+	            	currentTask.backgroundColorProperty().removeListener(this);
+	            	currentTask.backgroundColorProperty().addListener(this);
 	            }
 			}
+			else
+				setStyle(defaultStyle);
 		}
 		@Override public void commitEdit(String newValue) {
 			super.commitEdit(newValue);
 			((Highlighting) getTableRow().getItem()).setText(newValue);
 		}
+
+		@Override public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
+			Highlighting currentTask = getTableRow() == null ? null : (Highlighting)getTableRow().getItem();
+            if( currentTask != null ){
+            	setStyle("-fx-background-color: "
+        				+currentTask.backgroundColorProperty().getValue().toString().replace("0x", "#"));
+            }
+		}
+		
 	}
 }

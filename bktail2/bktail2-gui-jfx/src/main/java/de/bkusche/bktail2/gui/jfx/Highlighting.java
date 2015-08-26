@@ -51,7 +51,7 @@ public class Highlighting {
 	public final ObjectProperty<Color> backgroundColorProperty(){
 		return this.backgroundColor;
 	}
-	
+
 	
 //	public final int getTextColor(){
 //		return this.textColorProperty().
