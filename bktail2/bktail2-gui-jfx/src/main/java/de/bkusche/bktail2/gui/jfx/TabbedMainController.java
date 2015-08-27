@@ -1,10 +1,10 @@
 package de.bkusche.bktail2.gui.jfx;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -21,12 +21,14 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 
 public class TabbedMainController implements Initializable{
 
 	private static final String logViewerFxmlFile = "/fxml/Logviewer.fxml";
 	private static final String highlightingFxmlFile = "/fxml/HighlightingView.fxml";
+	
+	private Preferences prefs = null;
+	
 	@FXML TabPane tabpane;
 	@FXML MenuBar menuBar;
 
@@ -37,10 +39,10 @@ public class TabbedMainController implements Initializable{
 	
 	@Override public void initialize(URL location, ResourceBundle resources) {
 		menuBar.useSystemMenuBarProperty().set(true);
+		prefs = Preferences.userRoot().node("bktail2");
 	}
 	
-	@FXML
-	void onDragDroppedEvent(DragEvent e){
+	@FXML void onDragDroppedEvent(DragEvent e){
 		final Dragboard db = e.getDragboard();
         boolean success = false;
         if (db.hasFiles()) {
@@ -52,8 +54,7 @@ public class TabbedMainController implements Initializable{
 		
 	}
 
-	@FXML
-	void mouseDragOver(final DragEvent e) {
+	@FXML void mouseDragOver(final DragEvent e) {
         final Dragboard db = e.getDragboard();
  
         final boolean isAccepted = db.getFiles().get(0).getName().toLowerCase().endsWith(".log")
@@ -72,14 +73,12 @@ public class TabbedMainController implements Initializable{
         }
     }
 	
-	@FXML
-	void mouseDragExit(final DragEvent e) {
+	@FXML void mouseDragExit(final DragEvent e) {
 		tabpane.setStyle("-fx-border-color: #C6C6C6;");//TODO move to css
 	}
 
 	
-	@FXML
-    void onOpenLogFile(ActionEvent event) {
+	@FXML void onOpenLogFile(ActionEvent event) {
 		FileChooser fileChooser = new FileChooser();
 		List<File> files = fileChooser.showOpenMultipleDialog(new Stage());
 		if( files == null || files.isEmpty() ) return;
@@ -87,10 +86,14 @@ public class TabbedMainController implements Initializable{
     }
 
 	
-	@FXML
-	void onOpenHighlighting(ActionEvent event) {
+	@FXML void onOpenHighlighting(ActionEvent event) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(highlightingFxmlFile));
+			loader.setControllerFactory( p ->{
+				HighlightingController hc = new HighlightingController();
+				hc.init(prefs);
+				return hc;
+			});
 			Stage stage = new Stage();
 			Parent rootNode = (Parent) loader.load();
 			Scene scene = new Scene(rootNode);
@@ -109,7 +112,7 @@ public class TabbedMainController implements Initializable{
 		Platform.runLater( () -> {
 			try {
 				FXMLLoader loader = new FXMLLoader(getClass().getResource(logViewerFxmlFile));
-				loader.setControllerFactory((p)->{
+				loader.setControllerFactory( p ->{
 			    	LogviewerController lc = new LogviewerController();
 			    	lc.init(logfile);
 			    	return lc;

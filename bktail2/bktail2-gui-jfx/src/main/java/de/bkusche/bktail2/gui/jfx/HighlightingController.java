@@ -1,5 +1,8 @@
 package de.bkusche.bktail2.gui.jfx;
 
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -37,52 +40,70 @@ public class HighlightingController {
     @FXML Button btnOK;
     @FXML Button btnCancel;
     
+    private static final String THEME_TEXTCOLOR = "THEME_TEXTCOLOR";
+    private static final String THEME_BACKGROUNDCOLOR = "THEME_BACKGROUNDCOLOR";
+    
+    
     private ObservableList<Highlighting> highlightings;
-
-    @FXML
-    void initialize() {
-    	//
-    	//HACK //TODO remove!!!
-    	btnText.setValue(Color.BLACK);
+    private Preferences preferences;
+    
+    @FXML void initialize() {
     	highlightings = FXCollections.observableArrayList( 
     			);
 //    			new Highlighting("test",btnText.getValue(),btnBackground.getValue()));
     	tblContent.setItems(highlightings);
     	
     	tblColText.setCellValueFactory(new PropertyValueFactory<>("text"));
-    	tblColText.setCellFactory( (column) -> { 
+    	tblColText.setCellFactory( column -> { 
     		return new HighLightingTextCell();
 		});
     	
     	// define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
-    	tblColColor.setCellValueFactory((features) -> {
+    	tblColColor.setCellValueFactory( features -> {
     		return new SimpleBooleanProperty(features.getValue() != null);
     	});
     	
-    	tblColColor.setCellFactory((column) -> { 
+    	tblColColor.setCellFactory( column -> { 
     		return new HighlightingButtonCell(tblContent);
 		});
+    	
+    	btnText.setValue(Color.web(preferences.get(THEME_TEXTCOLOR, "#ffffff")));
+    	btnBackground.setValue(Color.web(preferences.get(THEME_BACKGROUNDCOLOR, "#000000")));
+    	Highlighting.loadFromPreferences(preferences, highlightings);
     }
     
-    @FXML
-    void onAddEntry(ActionEvent event) {
+    public void init( Preferences preferences ){
+    	this.preferences = preferences;
+    }
+    
+    @FXML void onAddEntry(ActionEvent event) {
     	highlightings.add(
     			new Highlighting("CHANGE ME!",btnText.getValue(),btnBackground.getValue()));
     }
 
-    @FXML
-    void onRemoveEntry(ActionEvent event) {
+    @FXML void onRemoveEntry(ActionEvent event) {
     	highlightings.remove(tblContent.getSelectionModel().getSelectedIndex());
     }
 
-    @FXML
-    void onCancel(ActionEvent event) {
-
+    @FXML void onCancel(ActionEvent event) {
+    	//TODO close this stage
     }
 
-    @FXML
-    void onOK(ActionEvent event) {
-
+    @FXML void onOK(ActionEvent event) {
+    	for( int i = 0; i < highlightings.size(); i++){
+    		Highlighting h = highlightings.get(i);
+    		String value = Highlighting.HIGHLIGHTING_VALUE_TEXT + Highlighting.HIGHLIGHTING_VALUEDELIMITER + h.getText()+Highlighting.HIGHLIGHTING_VALUESDELIMITER
+    				+Highlighting.HIGHLIGHTING_VALUE_FG+Highlighting.HIGHLIGHTING_VALUEDELIMITER+h.textColorProperty().getValue().toString().replace("0x", "#")+Highlighting.HIGHLIGHTING_VALUESDELIMITER
+    				+Highlighting.HIGHLIGHTING_VALUE_BG+Highlighting.HIGHLIGHTING_VALUEDELIMITER+h.backgroundColorProperty().getValue().toString().replace("0x", "#");
+    		preferences.put(Highlighting.HIGHLIGHTING_ENTRY+"_"+i, value);
+    	}
+    	
+    	try {
+			preferences.flush();
+		} catch (BackingStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     
