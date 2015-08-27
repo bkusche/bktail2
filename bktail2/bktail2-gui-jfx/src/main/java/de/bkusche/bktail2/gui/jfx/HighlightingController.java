@@ -40,8 +40,7 @@ public class HighlightingController {
     @FXML Button btnOK;
     @FXML Button btnCancel;
     
-    private static final String THEME_TEXTCOLOR = "THEME_TEXTCOLOR";
-    private static final String THEME_BACKGROUNDCOLOR = "THEME_BACKGROUNDCOLOR";
+    
     
     
     private ObservableList<Highlighting> highlightings;
@@ -67,8 +66,8 @@ public class HighlightingController {
     		return new HighlightingButtonCell(tblContent);
 		});
     	
-    	btnText.setValue(Color.web(preferences.get(THEME_TEXTCOLOR, "#ffffff")));
-    	btnBackground.setValue(Color.web(preferences.get(THEME_BACKGROUNDCOLOR, "#000000")));
+    	btnText.setValue(Color.web(preferences.get(Highlighting.THEME_TEXTCOLOR, "#ffffff")));
+    	btnBackground.setValue(Color.web(preferences.get(Highlighting.THEME_BACKGROUNDCOLOR, "#000000")));
     	Highlighting.loadFromPreferences(preferences, highlightings);
     }
     

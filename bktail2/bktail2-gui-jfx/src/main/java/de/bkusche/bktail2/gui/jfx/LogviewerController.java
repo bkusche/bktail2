@@ -23,7 +23,10 @@ import javafx.collections.ModifiableObservableListBase;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.paint.Color;
+import javafx.util.Callback;
 
 @SuppressWarnings({"rawtypes","unchecked", "restriction"})
 public class LogviewerController implements I_LogfileEventListener, Initializable{
@@ -43,6 +46,9 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 	private LogfileEvent event;
 	private List<String> content;
 	private ObservableList<String> observableList;
+	private Color textColor;
+	private Color backgroundColor;
+	private List<Highlighting> highlightings;
 	private final AtomicBoolean reading;
 	
 	public LogviewerController() {
@@ -54,7 +60,10 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 		reading = new AtomicBoolean(false);
 	}
 	
-	public void init( File logfile ){
+	public void init( File logfile, Color textColor, Color backgroundColor, List<Highlighting> highlightings ){
+		this.textColor = textColor;
+		this.backgroundColor = backgroundColor;
+		this.highlightings = highlightings;
 		logfileHandler.addFileToWatch(logfile);
 	}
 	
@@ -82,6 +91,27 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 			@Override protected String doRemove(int index) {return null;}
 		};
 		
+		logContent.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
+			@Override public ListCell<String> call(ListView<String> param) {
+				ListCell<String> cell = new ListCell<String>(){
+					@Override protected void updateItem(String item, boolean empty) {
+						super.updateItem(item, empty);
+						setStyle("-fx-background-color: "+backgroundColor.toString().replace("0x", "#"));
+						setTextFill(textColor);
+						if( empty ) return;
+						setText(item);
+			            setGraphic(null);
+			            for( Highlighting h : highlightings ){
+			            	if( !item.contains(h.getText())) continue;
+//			            	setStyle("-fx-background-color: "+h.backgroundColorProperty().toString().replace("0x", "#"));
+			            	setTextFill(h.textColorProperty().getValue());
+			            	return;
+			            }
+					}
+				};
+				return cell;
+			}
+		});
 		logContent.setItems(observableList);
 		
 		//
@@ -178,4 +208,5 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 			});
 		}
 	}
+	
 }

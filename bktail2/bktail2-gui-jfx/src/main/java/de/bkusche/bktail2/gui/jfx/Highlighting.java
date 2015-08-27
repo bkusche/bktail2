@@ -10,6 +10,8 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.paint.Color;
 
 public class Highlighting {
+	public static final String THEME_TEXTCOLOR = "THEME_TEXTCOLOR";
+	public static final String THEME_BACKGROUNDCOLOR = "THEME_BACKGROUNDCOLOR";
 	public static final String HIGHLIGHTING_ENTRY = "HIGHLIGHTING_ENTRY";
     public static final String HIGHLIGHTING_VALUESDELIMITER = ";";
     public static final String HIGHLIGHTING_VALUEDELIMITER = "->";

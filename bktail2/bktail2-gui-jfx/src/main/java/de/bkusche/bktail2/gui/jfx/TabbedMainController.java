@@ -2,6 +2,7 @@ package de.bkusche.bktail2.gui.jfx;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
@@ -19,6 +20,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -27,8 +29,8 @@ public class TabbedMainController implements Initializable{
 	private static final String logViewerFxmlFile = "/fxml/Logviewer.fxml";
 	private static final String highlightingFxmlFile = "/fxml/HighlightingView.fxml";
 	
-	private Preferences prefs = null;
-	
+	private Preferences prefs;
+	private List<Highlighting> highlightings;
 	@FXML TabPane tabpane;
 	@FXML MenuBar menuBar;
 
@@ -40,6 +42,12 @@ public class TabbedMainController implements Initializable{
 	@Override public void initialize(URL location, ResourceBundle resources) {
 		menuBar.useSystemMenuBarProperty().set(true);
 		prefs = Preferences.userRoot().node("bktail2");
+		highlightings = new ArrayList<>();
+		Highlighting.loadFromPreferences(prefs, highlightings);
+		prefs.addPreferenceChangeListener( p -> {
+			highlightings.clear();
+			Highlighting.loadFromPreferences(prefs, highlightings);
+		});
 	}
 	
 	@FXML void onDragDroppedEvent(DragEvent e){
@@ -114,7 +122,10 @@ public class TabbedMainController implements Initializable{
 				FXMLLoader loader = new FXMLLoader(getClass().getResource(logViewerFxmlFile));
 				loader.setControllerFactory( p ->{
 			    	LogviewerController lc = new LogviewerController();
-			    	lc.init(logfile);
+			    	lc.init(logfile,
+			    			Color.web(prefs.get(Highlighting.THEME_TEXTCOLOR, "#ffffff")),
+			    			Color.web(prefs.get(Highlighting.THEME_BACKGROUNDCOLOR, "#000000")),
+			    			highlightings);
 			    	return lc;
 				});
 				Tab tab = new Tab(logfile.getName());
