@@ -24,6 +24,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
 
 public class HighlightingController {
@@ -85,7 +86,7 @@ public class HighlightingController {
     }
 
     @FXML void onCancel(ActionEvent event) {
-    	//TODO close this stage
+    	((Stage)btnCancel.getScene().getWindow()).close();
     }
 
     @FXML void onOK(ActionEvent event) {
@@ -103,6 +104,8 @@ public class HighlightingController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+    	
+    	((Stage)btnOK.getScene().getWindow()).close();
     }
     
     
