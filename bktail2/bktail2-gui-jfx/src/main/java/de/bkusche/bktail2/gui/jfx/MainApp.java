@@ -8,6 +8,8 @@ import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
+	//-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/bktail2_heapdump`${current_date}`.hprof
+	//-XX:+DisableAttachMechanism
 	public static void main(String[] args) throws Exception {
 		launch(args);
 	}

@@ -103,7 +103,7 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 			            setGraphic(null);
 			            for( Highlighting h : highlightings ){
 			            	if( !item.contains(h.getText())) continue;
-//			            	setStyle("-fx-background-color: "+h.backgroundColorProperty().toString().replace("0x", "#"));
+			            	setStyle("-fx-background-color: "+h.backgroundColorProperty().getValue().toString().replace("0x", "#"));
 			            	setTextFill(h.textColorProperty().getValue());
 			            	return;
 			            }
@@ -112,6 +112,8 @@ public class LogviewerController implements I_LogfileEventListener, Initializabl
 				return cell;
 			}
 		});
+		logContent.setStyle("-fx-font-family: monospace;"
+				+ "-fx-font-size: 11;");
 		logContent.setItems(observableList);
 		
 		//
