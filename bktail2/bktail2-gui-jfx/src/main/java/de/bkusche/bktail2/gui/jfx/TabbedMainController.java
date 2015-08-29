@@ -31,6 +31,7 @@ public class TabbedMainController implements Initializable{
 	
 	private Preferences prefs;
 	private List<Highlighting> highlightings;
+	private Theme theme;
 	@FXML TabPane tabpane;
 	@FXML MenuBar menuBar;
 
@@ -43,9 +44,13 @@ public class TabbedMainController implements Initializable{
 		menuBar.useSystemMenuBarProperty().set(true);
 		prefs = Preferences.userRoot().node("bktail2");
 		highlightings = new ArrayList<>();
+		theme = new Theme(Color.web(prefs.get(Highlighting.THEME_TEXTCOLOR, "#ffffff")),
+    			Color.web(prefs.get(Highlighting.THEME_BACKGROUNDCOLOR, "#000000")));
 		Highlighting.loadFromPreferences(prefs, highlightings);
 		prefs.addPreferenceChangeListener( p -> {
 			highlightings.clear();
+			theme.setForegroundColor(Color.web(prefs.get(Highlighting.THEME_TEXTCOLOR, "#ffffff")));
+			theme.setBackgroundColor(Color.web(prefs.get(Highlighting.THEME_BACKGROUNDCOLOR, "#000000")));
 			Highlighting.loadFromPreferences(prefs, highlightings);
 		});
 	}
@@ -123,8 +128,7 @@ public class TabbedMainController implements Initializable{
 				loader.setControllerFactory( p ->{
 			    	LogviewerController lc = new LogviewerController();
 			    	lc.init(logfile,
-			    			Color.web(prefs.get(Highlighting.THEME_TEXTCOLOR, "#ffffff")),
-			    			Color.web(prefs.get(Highlighting.THEME_BACKGROUNDCOLOR, "#000000")),
+			    			theme,
 			    			highlightings);
 			    	return lc;
 				});

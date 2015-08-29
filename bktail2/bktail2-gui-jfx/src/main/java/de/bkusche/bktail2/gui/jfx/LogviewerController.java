@@ -22,7 +22,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.paint.Color;
 
 @SuppressWarnings({"rawtypes","unchecked", "restriction"})
 public class LogviewerController implements I_LogfileEventListener{
@@ -42,8 +41,7 @@ public class LogviewerController implements I_LogfileEventListener{
 	private LogfileEvent event;
 	private List<String> content;
 	private ObservableList<String> observableList;
-	private Color textColor;
-	private Color backgroundColor;
+	private Theme theme;
 	private List<Highlighting> highlightings;
 	private final AtomicBoolean reading;
 	
@@ -56,9 +54,8 @@ public class LogviewerController implements I_LogfileEventListener{
 		reading = new AtomicBoolean(false);
 	}
 	
-	public void init( File logfile, Color textColor, Color backgroundColor, List<Highlighting> highlightings ){
-		this.textColor = textColor;
-		this.backgroundColor = backgroundColor;
+	public void init( File logfile, Theme theme, List<Highlighting> highlightings ){
+		this.theme = theme;
 		this.highlightings = highlightings;
 		logfileHandler.addFileToWatch(logfile);
 	}
@@ -90,8 +87,8 @@ public class LogviewerController implements I_LogfileEventListener{
 			ListCell<String> cell = new ListCell<String>(){
 				@Override protected void updateItem(String item, boolean empty) {
 					super.updateItem(item, empty);
-					setStyle("-fx-background-color: "+backgroundColor.toString().replace("0x", "#"));
-					setTextFill(textColor);
+					setStyle("-fx-background-color: "+theme.getBackgroundColor().toString().replace("0x", "#"));
+					setTextFill(theme.getForegroundColor());
 					if( empty ) return;
 					setText(item);
 		            setGraphic(null);

@@ -48,10 +48,7 @@ public class HighlightingController {
     private Preferences preferences;
     
     @FXML void initialize() {
-    	highlightings = FXCollections.observableArrayList( 
-    			);
-//    			new Highlighting("test",btnText.getValue(),btnBackground.getValue()));
-    	tblContent.setItems(highlightings);
+    	highlightings = FXCollections.observableArrayList();
     	
     	tblColText.setCellValueFactory(new PropertyValueFactory<>("text"));
     	tblColText.setCellFactory( column -> { 
@@ -70,6 +67,8 @@ public class HighlightingController {
     	btnText.setValue(Color.web(preferences.get(Highlighting.THEME_TEXTCOLOR, "#ffffff")));
     	btnBackground.setValue(Color.web(preferences.get(Highlighting.THEME_BACKGROUNDCOLOR, "#000000")));
     	Highlighting.loadFromPreferences(preferences, highlightings);
+    	
+    	tblContent.setItems(highlightings);
     }
     
     public void init( Preferences preferences ){
@@ -90,6 +89,12 @@ public class HighlightingController {
     }
 
     @FXML void onOK(ActionEvent event) {
+    	//
+    	//update main theme
+    	preferences.put(Highlighting.THEME_TEXTCOLOR, btnText.getValue().toString().replace("0x", "#"));
+    	preferences.put(Highlighting.THEME_BACKGROUNDCOLOR, btnBackground.getValue().toString().replace("0x", "#"));
+    	//
+    	//update highlighting entries
     	for( int i = 0; i < highlightings.size(); i++){
     		Highlighting h = highlightings.get(i);
     		String value = Highlighting.HIGHLIGHTING_VALUE_TEXT + Highlighting.HIGHLIGHTING_VALUEDELIMITER + h.getText()+Highlighting.HIGHLIGHTING_VALUESDELIMITER
