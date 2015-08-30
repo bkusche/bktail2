@@ -1,17 +1,14 @@
 package de.bkusche.bktail2.gui.jfx;
 
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
@@ -24,7 +21,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-public class TabbedMainController implements Initializable{
+public class TabbedMainController{
 
 	private static final String logViewerFxmlFile = "/fxml/Logviewer.fxml";
 	private static final String highlightingFxmlFile = "/fxml/HighlightingView.fxml";
@@ -40,7 +37,7 @@ public class TabbedMainController implements Initializable{
 		
 	}
 	
-	@Override public void initialize(URL location, ResourceBundle resources) {
+	@FXML void initialize() {
 		menuBar.useSystemMenuBarProperty().set(true);
 		prefs = Preferences.userRoot().node("bktail2");
 		highlightings = new ArrayList<>();
@@ -112,7 +109,7 @@ public class TabbedMainController implements Initializable{
 			Scene scene = new Scene(rootNode);
 
 			scene.getStylesheets().add("/styles/styles.css");
-			stage.setTitle("Logviewer");
+			stage.setTitle("bktail2 highlighting");
 			stage.setScene(scene);
 			stage.show();
 		} catch (Throwable e) {

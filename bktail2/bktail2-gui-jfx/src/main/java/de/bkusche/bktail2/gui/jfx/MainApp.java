@@ -23,7 +23,7 @@ public class MainApp extends Application {
 		Scene scene = new Scene(rootNode, 1024, 768);
 
 		scene.getStylesheets().add("/styles/styles.css");
-		stage.setTitle("Logviewer");
+		stage.setTitle("bktail2");
 		stage.setScene(scene);
 		stage.setOnCloseRequest(e -> System.exit(1) );
 		stage.show();
