@@ -44,6 +44,7 @@ public class LogviewerController implements I_LogfileEventListener{
 	private Theme theme;
 	private List<Highlighting> highlightings;
 	private final AtomicBoolean reading;
+	private final AtomicBoolean running;
 	
 	public LogviewerController() {
 		
@@ -52,12 +53,13 @@ public class LogviewerController implements I_LogfileEventListener{
 		executorService = Executors.newFixedThreadPool(3);
 		content = new ArrayList<>();
 		reading = new AtomicBoolean(false);
+		running = new AtomicBoolean(true);
 	}
 	
 	public void init( File logfile, Theme theme, List<Highlighting> highlightings ){
 		this.theme = theme;
 		this.highlightings = highlightings;
-		logfileHandler.addFileToWatch(logfile);
+		logfileHandler.addFileToObserve(logfile);
 	}
 	
 	
@@ -109,7 +111,7 @@ public class LogviewerController implements I_LogfileEventListener{
 		//
 		// monitoring the view position
 		executorService.execute(() ->{
-			while(true){
+			while(running.get()){
 				try {
 					ListViewSkin<?> ts = (ListViewSkin<?>) logContent.getSkin();
 			        VirtualFlow<?> vf = (VirtualFlow<?>) ts.getChildren().get(0);
@@ -124,7 +126,7 @@ public class LogviewerController implements I_LogfileEventListener{
 		// reloading triggered by scrolling 
 		executorService.execute(() ->{
 			int prevFirst = 0;
-			while(true){
+			while(running.get()){
 				try {
 					if( !reading.get() && (first - prevFirst > RELOADTHRESHOLD || prevFirst - first > RELOADTHRESHOLD) ){
 						load();
@@ -171,7 +173,11 @@ public class LogviewerController implements I_LogfileEventListener{
 		});
 		return;
 	}
-	
+
+	public void dispose(){
+		running.set(false);
+		logfileHandler.stopObserving();
+	}
 	
 	private void load(){
 		

@@ -5,7 +5,9 @@ import java.util.List;
 
 public interface I_LogfileHandler {
 
-	public void addFileToWatch(File filepath);
+	public void addFileToObserve(File filepath);
+	
+	public void stopObserving();
 	
 	public List<String> readLines( LogfileReadInput logfileReadInput );
 	

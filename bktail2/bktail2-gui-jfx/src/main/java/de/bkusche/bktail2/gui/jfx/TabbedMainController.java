@@ -130,8 +130,12 @@ public class TabbedMainController{
 			    	return lc;
 				});
 				Tab tab = new Tab(logfile.getName());
+				tab.setClosable(true);
 				tab.setContent(loader.load());
-				
+				tab.setOnClosed(e -> {
+					((LogviewerController)loader.getController()).dispose();
+					tabpane.getTabs().remove(e.getSource());
+				});
 				tabpane.getTabs().add(tab);
 			} catch (Throwable ex) {
 				// TODO display error message

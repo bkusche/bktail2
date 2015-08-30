@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -30,6 +31,7 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 	private List<LogfileEvent> logfileEvents;
 	private final List<String> lineRange;
 	private long fileSize = 0;
+	private final AtomicBoolean observing;
 	
 	/**
 	 * Count lines of a file
@@ -80,16 +82,17 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 		logfileEventListeners = new LinkedList<>();
 		logfileEvents = new LinkedList<>();
 		lineRange = new ArrayList<>();
+		observing = new AtomicBoolean(true);
 	}
 
 
-	@Override public void addFileToWatch(File filepath) {
+	@Override public void addFileToObserve(File filepath) {
 		//TODO implement evaluations
 		
 		//
 		//file monitor thread
 		service.execute( () -> {
-			while( true ){
+			while( observing.get() ){
 				try {
 					//
 					//detect file creation
@@ -128,6 +131,10 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 				}
 			}
 		});
+	}
+	
+	@Override public void stopObserving() {
+		observing.set(false);
 	}
 	
 	@Override public List<String> readLines( LogfileReadInput logfileReadInput ){

@@ -24,7 +24,7 @@
                 </Menu>
               </menus>
             </MenuBar>
-            <TabPane fx:id="tabpane" onDragDropped="#onDragDroppedEvent" onDragExited="#mouseDragExit" onDragOver="#mouseDragOver" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+            <TabPane fx:id="tabpane" onDragDropped="#onDragDroppedEvent" onDragExited="#mouseDragExit" onDragOver="#mouseDragOver" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
 
       </TabPane>
          </children>

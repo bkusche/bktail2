@@ -45,7 +45,7 @@ public class LogfileHandlerTest {
 //		I_LogfileHandler logfileHandler = S_LogfileHandlerImpl.getInstance();
 		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
 		System.out.println("using testfile: "+filepath);
-		logfileHandler.addFileToWatch(new File( filepath ));
+		logfileHandler.addFileToObserve(new File( filepath ));
 		logfileHandler.addLogfileEventListener(new I_LogfileEventListener() {
 			@Override
 			public void onModify(LogfileEvent event) {
