@@ -15,13 +15,26 @@ import de.bkusche.bktail2.logfilehandler.I_LogfileEventListener;
 import de.bkusche.bktail2.logfilehandler.I_LogfileHandler;
 import de.bkusche.bktail2.logfilehandler.LogfileEvent;
 import de.bkusche.bktail2.logfilehandler.LogfileReadInput;
+import de.bkusche.bktail2.logfilehandler.LogfileSearchInput;
 import de.bkusche.bktail2.logfilehandler.impl.LogfileHandlerImpl;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.ModifiableObservableListBase;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 @SuppressWarnings({"rawtypes","unchecked", "restriction"})
 public class LogviewerController implements I_LogfileEventListener{
@@ -30,9 +43,13 @@ public class LogviewerController implements I_LogfileEventListener{
 	private static final int MAXLINESTOREAD = 5000;
 	private static final int RELOADTHRESHOLD = 5000;
 	
+	@FXML AnchorPane anchor;
 	@FXML ScrollPane scrollPane;	
 	@FXML ListView logContent;
-	
+	@FXML AnchorPane extendableSearchPane;
+	@FXML Label searchHitLabel;
+	@FXML TextField searchFiled;
+
 	private final I_LogfileHandler logfileHandler;
 	
 	private final ExecutorService executorService;
@@ -45,6 +62,11 @@ public class LogviewerController implements I_LogfileEventListener{
 	private List<Highlighting> highlightings;
 	private final AtomicBoolean reading;
 	private final AtomicBoolean running;
+	private Rectangle clipRect;
+	private double heightInitial;
+	private List<Integer> searchHitList;
+	private int searchHitPos;
+	private long from;
 	
 	public LogviewerController() {
 		
@@ -69,10 +91,9 @@ public class LogviewerController implements I_LogfileEventListener{
 
 			@Override public String get(int index) {
 				if( content == null || content.size() == 0 ) return EMPTY;
-				if( index < MAXLINESTOREAD )
-					return content.get(index);
-				else
-					return content.get(index%content.size());
+//				System.out.println("index: "+index+" -> calcIndex: "+(((index- (from%content.size()))%content.size())));
+				int i = (int) (((index- (from%content.size()))%content.size()));
+				return content.get(i < 0 ? 0 : i);
 			}
 
 			@Override public int size() {
@@ -142,6 +163,22 @@ public class LogviewerController implements I_LogfileEventListener{
 				} catch (Throwable e) {}	
 			}
 		});
+		
+		//
+		// fancy search field stuff
+		double widthInitial = extendableSearchPane.prefWidthProperty().doubleValue();
+		heightInitial = extendableSearchPane.prefHeightProperty().doubleValue();
+		clipRect = new Rectangle();
+		clipRect.setWidth(widthInitial);
+		clipRect.setHeight(0);
+		clipRect.translateYProperty().set(heightInitial);
+		extendableSearchPane.setClip(clipRect);
+		
+		extendableSearchPane.translateYProperty().set(-heightInitial);
+		extendableSearchPane.prefHeightProperty().set(0);
+		//
+		// requesting focus
+		anchor.requestFocus();
 	}
 	
 
@@ -179,9 +216,113 @@ public class LogviewerController implements I_LogfileEventListener{
 		logfileHandler.stopObserving();
 	}
 	
+	@FXML void onKeyTyped(KeyEvent event) {
+		try {
+			if( event.isShortcutDown() && event.getCharacter().equals("f")){
+				toggleExtendableSearch();
+			}
+		} catch (Throwable e) {
+			// 
+		}
+    }
+	
+	@FXML void onSearchKeyTyped(KeyEvent ke) {
+		if( ke.getCode().equals(KeyCode.ENTER)){
+			searchHitList = logfileHandler.searchInLogFile(new LogfileSearchInput(event.getPath(), 
+					searchFiled.getText()));
+			if( searchHitList.isEmpty() )
+				searchHitLabel.setText("No result");
+			else 
+				searchHitLabel.setText(searchHitPos+1+" of "+searchHitList.size()+" matches");
+			
+			searchHitPos = 0;
+			selectSearchHit(searchHitList.get(searchHitPos));
+		}
+    }
+
+    @FXML void previousSearchEntry(ActionEvent event) {
+    	if( searchHitPos > 0 ) searchHitPos--;
+    	selectSearchHit(searchHitList.get(searchHitPos));
+    	searchHitLabel.setText(searchHitPos+1+" of "+searchHitList.size()+" matches");
+    }
+
+    @FXML void nextSearchEntry(ActionEvent event) {
+    	if( searchHitPos < searchHitList.size()-1 ) searchHitPos++;
+    	selectSearchHit(searchHitList.get(searchHitPos));
+    	searchHitLabel.setText(searchHitPos+1+" of "+searchHitList.size()+" matches");
+    }
+
+    @FXML void hideSearchArea(ActionEvent event) {
+    	toggleExtendableSearch();
+    }
+
+    private void selectSearchHit( int searchHitPos ){
+    	System.out.println("searchHitPos: "+searchHitPos);
+    	Platform.runLater(()->{
+    		logContent.scrollTo(searchHitPos);
+    		logContent.getSelectionModel().select(searchHitPos);
+    	});
+    }
+	
+	private void toggleExtendableSearch() {
+		clipRect.setWidth(extendableSearchPane.getWidth());
+		Timeline timeline = new Timeline();
+		if (clipRect.heightProperty().get() != 0) {
+			//
+			// Animation of sliding the search pane up, implemented via clipping.
+			final KeyValue kvUp1 = new KeyValue(clipRect.heightProperty(), 0);
+			final KeyValue kvUp2 = new KeyValue(clipRect.translateYProperty(), heightInitial);
+			//
+			// The actual movement of the search pane. This makes the table grow.
+			final KeyValue kvUp4 = new KeyValue(extendableSearchPane.prefHeightProperty(), 0);
+			final KeyValue kvUp3 = new KeyValue(extendableSearchPane.translateYProperty(), -heightInitial);
+			final KeyFrame kfUp = new KeyFrame(Duration.millis(200), kvUp1, kvUp2, kvUp3, kvUp4);
+			
+			timeline.getKeyFrames().add(kfUp);
+			anchor.requestFocus();
+		} else {
+			//
+			// Animation for sliding the search pane down. No change in size,
+			// just making the visible part of the pane bigger.
+			final KeyValue kvDwn1 = new KeyValue(clipRect.heightProperty(), heightInitial);
+			final KeyValue kvDwn2 = new KeyValue(clipRect.translateYProperty(), 0);
+			//
+			// Growth of the pane.
+			final KeyValue kvDwn4 = new KeyValue(extendableSearchPane.prefHeightProperty(), heightInitial);
+			final KeyValue kvDwn3 = new KeyValue(extendableSearchPane.translateYProperty(), 0);
+			final KeyFrame kfDwn = new KeyFrame(Duration.millis(200), createBouncingEffect(heightInitial), kvDwn1, kvDwn2, kvDwn3, kvDwn4);
+			
+			timeline.getKeyFrames().add(kfDwn);
+			searchFiled.requestFocus();
+		}
+		timeline.play();
+	}
+	
+	private EventHandler<ActionEvent> createBouncingEffect(double height) {
+		final Timeline timelineBounce = new Timeline();
+		timelineBounce.setCycleCount(2);
+		timelineBounce.setAutoReverse(true);
+		final KeyValue kv1 = new KeyValue(clipRect.heightProperty(), (height - 15));
+		final KeyValue kv2 = new KeyValue(clipRect.translateYProperty(), 15);
+		final KeyValue kv3 = new KeyValue(extendableSearchPane.translateYProperty(), -15);
+		final KeyFrame kf1 = new KeyFrame(Duration.millis(100), kv1, kv2, kv3);
+		timelineBounce.getKeyFrames().add(kf1);
+		//
+		// Event handler to call bouncing effect after the scroll down is finished.
+		EventHandler<ActionEvent> handler = new EventHandler<ActionEvent>() {
+			@Override public void handle(ActionEvent event) {
+				timelineBounce.play();
+			}
+		};
+		return handler;
+	}
+	
+	
+	//
+	// handles log file loading
 	private void load(){
 		
-		final long from = first > MAXLINESTOREAD? first-MAXLINESTOREAD: 0;
+		from = first > MAXLINESTOREAD? first-MAXLINESTOREAD: 0;
 		final long to = event.getLines() > first+MAXLINESTOREAD? first+MAXLINESTOREAD : event.getLines(); 
 	
 		try {

@@ -6,12 +6,31 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="480.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.bkusche.bktail2.gui.jfx.LogviewerController">
+<AnchorPane fx:id="anchor" onKeyTyped="#onKeyTyped" prefHeight="480.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.bkusche.bktail2.gui.jfx.LogviewerController">
    <children>
-      <ScrollPane fitToHeight="true" fitToWidth="true" layoutX="-278.0" layoutY="-302.0" prefHeight="102.0" prefWidth="60.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <content>
-            <ListView fx:id="logContent" prefHeight="200.0" prefWidth="200.0" />
-         </content>
-      </ScrollPane>
+      <BorderPane prefHeight="480.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <top>
+            <AnchorPane fx:id="extendableSearchPane" maxHeight="35.0" minHeight="0.0" prefHeight="35.0" prefWidth="640.0" BorderPane.alignment="CENTER">
+               <children>
+                  <TextField fx:id="searchFiled" layoutX="35.0" layoutY="5.0" onKeyPressed="#onSearchKeyTyped" onKeyTyped="#onKeyTyped" />
+                  <Button layoutX="198.0" layoutY="5.0" mnemonicParsing="false" onAction="#previousSearchEntry" text="&lt;" />
+                  <Button layoutX="224.0" layoutY="5.0" mnemonicParsing="false" onAction="#nextSearchEntry" text="&gt;" />
+                  <Button layoutX="8.0" layoutY="5.0" mnemonicParsing="false" onAction="#hideSearchArea" text="X" />
+                  <Label fx:id="searchHitLabel" layoutX="267.0" layoutY="12.0" />
+               </children>
+            </AnchorPane>
+         </top>
+         <center>
+            <AnchorPane onKeyTyped="#onKeyTyped" BorderPane.alignment="CENTER">
+               <children>
+                  <ScrollPane fitToHeight="true" fitToWidth="true" onKeyTyped="#onKeyTyped" prefHeight="102.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <content>
+                        <ListView fx:id="logContent" onKeyTyped="#onKeyTyped" />
+                     </content>
+                  </ScrollPane>
+               </children>
+            </AnchorPane>
+         </center>
+      </BorderPane>
    </children>
 </AnchorPane>

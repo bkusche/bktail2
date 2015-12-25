@@ -3,7 +3,10 @@
  */
 package de.bkusche.bktail2.logfilehandler.impl;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -19,6 +22,7 @@ import de.bkusche.bktail2.logfilehandler.I_LogfileEventListener;
 import de.bkusche.bktail2.logfilehandler.I_LogfileHandler;
 import de.bkusche.bktail2.logfilehandler.LogfileEvent;
 import de.bkusche.bktail2.logfilehandler.LogfileReadInput;
+import de.bkusche.bktail2.logfilehandler.LogfileSearchInput;
 
 /**
  * @author bjornkusche
@@ -160,5 +164,24 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 	
 	@Override public void removeLogfileEventListener( I_LogfileEventListener l ){
 		logfileEventListeners.remove(l);
+	}
+	
+	@Override public List<Integer> searchInLogFile( LogfileSearchInput logfileSearchInput ) {
+		List<Integer> resultHitList = new LinkedList<>();
+		try( BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(
+				logfileSearchInput.getPath().toFile())))){
+			String line = null;
+			int c = 0;
+			while ((line = br.readLine()) != null) {
+				if( line.contains(logfileSearchInput.getSearchPattern()) ){ 
+					resultHitList.add(c);
+				}
+				c++;
+			}
+		} catch( Throwable e){
+			//
+		}
+		
+		return resultHitList;
 	}
 }

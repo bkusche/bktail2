@@ -14,4 +14,6 @@ public interface I_LogfileHandler {
 	public void addLogfileEventListener( I_LogfileEventListener l );
 	
 	public void removeLogfileEventListener( I_LogfileEventListener l );
+	
+	public List<Integer> searchInLogFile( LogfileSearchInput logfileSearchInput );
 }
