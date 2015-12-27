@@ -230,24 +230,44 @@ public class LogviewerController implements I_LogfileEventListener{
 		if( ke.getCode().equals(KeyCode.ENTER)){
 			searchHitList = logfileHandler.searchInLogFile(new LogfileSearchInput(event.getPath(), 
 					searchFiled.getText()));
-			if( searchHitList.isEmpty() )
-				searchHitLabel.setText("No result");
-			else 
-				searchHitLabel.setText(searchHitPos+1+" of "+searchHitList.size()+" matches");
 			
-			searchHitPos = 0;
-			selectSearchHit(searchHitList.get(searchHitPos));
+			searchHitPos = 0; //reset
+			if( searchHitList.isEmpty() ){
+				searchHitLabel.setText("No result");
+				return;
+			}
+			else {
+				nextSearchEntry(null);
+			}	
 		}
     }
 
     @FXML void previousSearchEntry(ActionEvent event) {
-    	if( searchHitPos > 0 ) searchHitPos--;
+    	if( searchHitPos == 0 ) 
+    		return;
+    	
+    	for( int i = searchHitList.size()-1; i >= 0; i-- ){
+    		if( searchHitList.get(i) <= first ){
+    			searchHitPos = i;
+    			break;
+    		}
+    	}
+    	
     	selectSearchHit(searchHitList.get(searchHitPos));
     	searchHitLabel.setText(searchHitPos+1+" of "+searchHitList.size()+" matches");
     }
 
     @FXML void nextSearchEntry(ActionEvent event) {
-    	if( searchHitPos < searchHitList.size()-1 ) searchHitPos++;
+    	if( searchHitPos >= searchHitList.size()-1 ) 
+    		return;
+		
+    	for( int i = 0; i < searchHitList.size(); i++ ){
+    		if( searchHitList.get(i) > first ){
+    			searchHitPos = i;
+    			break;
+    		}
+    	}
+    	searchHitPos++;
     	selectSearchHit(searchHitList.get(searchHitPos));
     	searchHitLabel.setText(searchHitPos+1+" of "+searchHitList.size()+" matches");
     }
@@ -264,6 +284,8 @@ public class LogviewerController implements I_LogfileEventListener{
     	});
     }
 	
+    //
+    // kindly provided by: http://stevenschwenke.de/extendableSearchPaneInJavaFX
 	private void toggleExtendableSearch() {
 		clipRect.setWidth(extendableSearchPane.getWidth());
 		Timeline timeline = new Timeline();
