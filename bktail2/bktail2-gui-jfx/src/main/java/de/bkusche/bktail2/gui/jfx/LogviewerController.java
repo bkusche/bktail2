@@ -31,6 +31,8 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Rectangle;
@@ -67,6 +69,7 @@ public class LogviewerController implements I_LogfileEventListener{
 	private List<Integer> searchHitList;
 	private int searchHitPos;
 	private long from;
+	private boolean ignoreCase;
 	
 	public LogviewerController() {
 		
@@ -76,6 +79,7 @@ public class LogviewerController implements I_LogfileEventListener{
 		content = new ArrayList<>();
 		reading = new AtomicBoolean(false);
 		running = new AtomicBoolean(true);
+		ignoreCase = false;
 	}
 	
 	public void init( File logfile, Theme theme, List<Highlighting> highlightings ){
@@ -218,9 +222,9 @@ public class LogviewerController implements I_LogfileEventListener{
 	
 	@FXML void onKeyTyped(KeyEvent event) {
 		try {
-			if( event.isShortcutDown() && event.getCharacter().equals("f")){
+			if( new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN).match(event)
+					|| event.isShortcutDown() && event.getCharacter().equals("f"))
 				toggleExtendableSearch();
-			}
 		} catch (Throwable e) {
 			// 
 		}
@@ -228,21 +232,11 @@ public class LogviewerController implements I_LogfileEventListener{
 	
 	@FXML void onSearchKeyTyped(KeyEvent ke) {
 		if( ke.getCode().equals(KeyCode.ENTER)){
-			searchHitList = logfileHandler.searchInLogFile(new LogfileSearchInput(event.getPath(), 
-					searchFiled.getText()));
-			
-			searchHitPos = 0; //reset
-			if( searchHitList.isEmpty() ){
-				searchHitLabel.setText("No result");
-				return;
-			}
-			else {
-				nextSearchEntry(null);
-			}	
+			performSearch();
 		}
     }
 
-    @FXML void previousSearchEntry(ActionEvent event) {
+	@FXML void previousSearchEntry(ActionEvent event) {
     	if( searchHitPos == 0 ) 
     		return;
     	
@@ -276,6 +270,25 @@ public class LogviewerController implements I_LogfileEventListener{
     	toggleExtendableSearch();
     }
 
+    @FXML void toggleIgnoreCase(ActionEvent event) {
+    	ignoreCase = !ignoreCase;
+    	performSearch();
+    }
+
+    private void performSearch() {
+    	searchHitList = logfileHandler.searchInLogFile(new LogfileSearchInput(event.getPath(), 
+				searchFiled.getText(), ignoreCase));
+		
+		searchHitPos = 0; //reset
+		if( searchHitList.isEmpty() ){
+			searchHitLabel.setText("No result");
+			return;
+		}
+		else {
+			nextSearchEntry(null);
+		}	
+	}
+    
     private void selectSearchHit( int searchHitPos ){
     	System.out.println("searchHitPos: "+searchHitPos);
     	Platform.runLater(()->{

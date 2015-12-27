@@ -6,11 +6,13 @@ public class LogfileSearchInput {
 	
 	private Path path;
 	private String searchPattern;
+	private boolean ignoreCase;
 	
-	public LogfileSearchInput(Path path, String searchPattern) {
+	public LogfileSearchInput(Path path, String searchPattern,boolean ignoreCase) {
 		super();
 		this.path = path;
 		this.searchPattern = searchPattern;
+		this.ignoreCase = ignoreCase;
 	}
 
 	public Path getPath() {
@@ -29,4 +31,11 @@ public class LogfileSearchInput {
 		this.searchPattern = searchPattern;
 	}
 	
+	public void setIgnoreCase(boolean ignoreCase) {
+		this.ignoreCase = ignoreCase;
+	}
+	
+	public boolean isIgnoreCase() {
+		return ignoreCase;
+	}
 }

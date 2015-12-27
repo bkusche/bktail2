@@ -173,9 +173,16 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 			String line = null;
 			int c = 0;
 			while ((line = br.readLine()) != null) {
-				if( line.contains(logfileSearchInput.getSearchPattern()) ){ 
-					resultHitList.add(c);
+				if( logfileSearchInput.isIgnoreCase() ){
+					if( line.toLowerCase().contains(logfileSearchInput.getSearchPattern().toLowerCase()) ){ 
+						resultHitList.add(c);
+					}
+				}else{
+					if( line.contains(logfileSearchInput.getSearchPattern()) ){ 
+						resultHitList.add(c);
+					}
 				}
+				
 				c++;
 			}
 		} catch( Throwable e){
