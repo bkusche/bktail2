@@ -42,7 +42,7 @@ import de.bkusche.bktail2.logfilehandler.impl.LogfileHandlerImpl;
 public class LogfileHandlerTest {
 
 	private static final String LOGFILENAME = "testfile.log";
-	private static final String FILEPATH = System.getProperty("java.io.tmpdir")+LOGFILENAME;
+	private static final String FILEPATH = /*System.getProperty("java.io.tmpdir")+*/LOGFILENAME;//travis can't handle temp dirs :-/
 	private static final int maxLines = 10;
 	private Logger log = Logger.getLogger(LogfileHandlerTest.class);
 	
@@ -52,6 +52,11 @@ public class LogfileHandlerTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
+		try {
+			Files.delete(Paths.get(FILEPATH));
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	@Before
