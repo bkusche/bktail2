@@ -1,3 +1,3 @@
 # bktail2
 
-Is a simple log viewer
+Is a simple log viewer.
