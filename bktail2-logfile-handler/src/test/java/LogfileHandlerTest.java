@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileTime;
 
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -27,6 +32,7 @@ import org.junit.Test;
 import de.bkusche.bktail2.logfilehandler.I_LogfileEventListener;
 import de.bkusche.bktail2.logfilehandler.I_LogfileHandler;
 import de.bkusche.bktail2.logfilehandler.LogfileEvent;
+import de.bkusche.bktail2.logfilehandler.LogfileReadInput;
 import de.bkusche.bktail2.logfilehandler.impl.LogfileHandlerImpl;
 
 /**
@@ -35,8 +41,10 @@ import de.bkusche.bktail2.logfilehandler.impl.LogfileHandlerImpl;
  */
 public class LogfileHandlerTest {
 
-	
-	private String filepath = System.getProperty("java.io.tmpdir")+"testfile.log";
+	private static final String LOGFILENAME = "testfile.log";
+	private static final String FILEPATH = System.getProperty("java.io.tmpdir")+LOGFILENAME;
+	private static final int maxLines = 10;
+	private Logger log = Logger.getLogger(LogfileHandlerTest.class);
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -49,10 +57,21 @@ public class LogfileHandlerTest {
 	@Before
 	public void setUp() throws Exception {
 		try {
-			Files.delete(Paths.get(filepath));
+			Files.delete(Paths.get(FILEPATH));
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
+		
+		FileAppender fa = new FileAppender();
+		fa.setName("FileLogger");
+		fa.setFile(FILEPATH);
+		fa.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"));
+		fa.setThreshold(Level.DEBUG);
+		fa.setAppend(true);
+		fa.activateOptions();
+	
+		//add appender to any Logger (here is root)
+		Logger.getRootLogger().addAppender(fa);
 	}
 
 	@After
@@ -60,42 +79,106 @@ public class LogfileHandlerTest {
 	}
 
 	@Test
-	public void test() throws Exception{
-//		I_LogfileHandler logfileHandler = S_LogfileHandlerImpl.getInstance();
+	public void normal_logging() throws Exception{
+		final int[] actualLine = new int[1];
+		
 		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
-		System.out.println("using testfile: "+filepath);
-		logfileHandler.addFileToObserve(new File( filepath ));
+		System.out.println("using testfile: "+FILEPATH);
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
 		logfileHandler.addLogfileEventListener(new I_LogfileEventListener() {
 			@Override
 			public void onModify(LogfileEvent event) {
+				assertNotNull(event);
+				assertEquals(LOGFILENAME,event.getName());
+				assertEquals(actualLine[0], event.getLines());
 				System.out.println("onModify: "+event.getName());
 			}
 			
 			@Override
 			public void onDelete(LogfileEvent event) {
+				assertNotNull(event);
+				assertEquals(LOGFILENAME,event.getName());
+				assertEquals(maxLines, event.getLines());
 				System.out.println("onDelete: "+event.getName());
 			}
 			
 			@Override
 			public void onCreate(LogfileEvent event) {
+				assertNotNull(event);
+				assertEquals(LOGFILENAME,event.getName());
 				System.out.println("onCreate:"+event.getName());
 			}
 		});
-		Thread.sleep(1000L);
-		Files.createFile(Paths.get(filepath));
-		Files.setLastModifiedTime(Paths.get(filepath), FileTime.fromMillis(System.currentTimeMillis()));
-		System.out.println("writing");
-		Thread.sleep(1000L);
-		for( int i = 0; i < 5; i++){
-			Files.write(Paths.get(filepath), (i+"\n").getBytes());
-			Thread.sleep(5000L);
-		}
 		
+		System.out.println("writing");
+		try {
+			for( int i = 0; i < maxLines; i++){
+				actualLine[0] = i+1;
+				log.info("TEST_LINE_"+actualLine);
+				Thread.sleep(1000L);
+			}
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
 		System.out.println("deleting");
 		Thread.sleep(1000L);
-		Files.delete(Paths.get(filepath));
+		Files.delete(Paths.get(FILEPATH));
 		Thread.sleep(1000L);
 		
 	}
 
+	/**
+	 * this should never happen... but just in case it does
+	 */
+	@Test(expected=NullPointerException.class)
+	public void null_parameter_addFile() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(null);
+	}
+	
+	/**
+	 * this should never happen... but just in case it does
+	 */
+	@Test(expected=NullPointerException.class)
+	public void null_parameter_addLogfileEventListener() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		logfileHandler.addLogfileEventListener(null);
+	}
+	
+	@Test(expected=NullPointerException.class)
+	public void null_parameter_removeLogfileEventListener() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		logfileHandler.removeLogfileEventListener(null);
+	}
+	
+	@Test
+	public void no_eventListener() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		for( int i = 0; i < maxLines; i++)
+			log.info("TEST_LINE_"+i);
+	}
+	
+	@Test(expected=NullPointerException.class)
+	public void null_parameter_readLines() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		logfileHandler.readLines(null);
+	}
+	
+	@Test(expected=NullPointerException.class)
+	public void null_parameter_readLinesPath() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		logfileHandler.readLines(new LogfileReadInput());
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void illegalRange_readLines() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		logfileHandler.readLines(new LogfileReadInput(new File( FILEPATH ).toPath(),10L,0L,0L));
+	}
 }

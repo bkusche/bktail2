@@ -103,8 +103,7 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 
 
 	@Override public void addFileToObserve(File filepath) {
-		//TODO implement evaluations
-		
+		if( filepath == null ) throw new NullPointerException("filepath must not be null!");
 		//
 		//file monitor thread
 		service.execute( () -> {
@@ -154,6 +153,10 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 	}
 	
 	@Override public List<String> readLines( LogfileReadInput logfileReadInput ){
+		if( logfileReadInput == null ) throw new NullPointerException("logfileReadInput must not be null!");
+		if( logfileReadInput.getPath() == null ) throw new NullPointerException("logfileReadInput.getPath must not be null!");
+		if( logfileReadInput.getTo() < logfileReadInput.getFrom() ) throw new IllegalArgumentException("to must not be smaller than from!");
+		
 //		System.out.println("loading "+logfileReadInput.getFrom()+" to "+logfileReadInput.getTo());
 		//
 		//reusing lineRange list (reference) to avoid unnecessary 0..n references & gc usage  
@@ -171,10 +174,12 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 	}
 	
 	@Override public void addLogfileEventListener( I_LogfileEventListener l ){
+		if( l == null ) throw new NullPointerException();
 		logfileEventListeners.add(l);
 	}
 	
 	@Override public void removeLogfileEventListener( I_LogfileEventListener l ){
+		if( l == null ) throw new NullPointerException();
 		logfileEventListeners.remove(l);
 	}
 	
