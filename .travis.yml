@@ -2,4 +2,4 @@ language: java
 jdk:
 #  - openjdk7
   - oraclejdk8
-script: mvn -e -DskipTests clean install
+script: mvn -e clean install
