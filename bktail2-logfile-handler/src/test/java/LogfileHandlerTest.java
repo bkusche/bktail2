@@ -18,6 +18,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
@@ -33,6 +34,7 @@ import de.bkusche.bktail2.logfilehandler.I_LogfileEventListener;
 import de.bkusche.bktail2.logfilehandler.I_LogfileHandler;
 import de.bkusche.bktail2.logfilehandler.LogfileEvent;
 import de.bkusche.bktail2.logfilehandler.LogfileReadInput;
+import de.bkusche.bktail2.logfilehandler.LogfileSearchInput;
 import de.bkusche.bktail2.logfilehandler.impl.LogfileHandlerImpl;
 
 /**
@@ -129,7 +131,7 @@ public class LogfileHandlerTest {
 		Thread.sleep(1000L);
 		Files.delete(Paths.get(FILEPATH));
 		Thread.sleep(1000L);
-		
+		logfileHandler.stopObserving();
 	}
 
 	/**
@@ -159,6 +161,17 @@ public class LogfileHandlerTest {
 	}
 	
 	@Test
+	public void removeLogfileEventListener() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		logfileHandler.removeLogfileEventListener(new I_LogfileEventListener() {
+			@Override public void onCreate(LogfileEvent event) {}
+			@Override public void onModify(LogfileEvent event) {}
+			@Override public void onDelete(LogfileEvent event) {}
+		});
+	}
+	
+	@Test
 	public void no_eventListener() throws Exception{
 		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
 		logfileHandler.addFileToObserve(new File( FILEPATH ));
@@ -185,5 +198,75 @@ public class LogfileHandlerTest {
 		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
 		logfileHandler.addFileToObserve(new File( FILEPATH ));
 		logfileHandler.readLines(new LogfileReadInput(new File( FILEPATH ).toPath(),10L,0L,0L));
+	}
+	
+	@Test
+	public void readLines() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		try {
+			for( int i = 0; i < maxLines; i++){
+				log.info("TEST_LINE_"+i);
+			}
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+		logfileHandler.readLines(new LogfileReadInput(new File( FILEPATH ).toPath(),1L,2L,0L));
+	}
+	
+	@Test
+	public void normal_search() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		try {
+			for( int i = 0; i < maxLines; i++){
+				log.info("TEST_LINE_"+i);
+			}
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+		List<Integer> result = logfileHandler.searchInLogFile( new LogfileSearchInput(new File( FILEPATH ).toPath(), "TEST_LINE_1", false));
+		assertNotNull(result);
+		assertFalse(result.isEmpty());
+		assertEquals(1, result.size());
+	}
+	
+	@Test
+	public void normal_search_ignoreCase() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		System.out.println("writing");
+		try {
+			for( int i = 0; i < maxLines; i++){
+				log.info("TEST_LINE_"+i);
+			}
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+		List<Integer> result = logfileHandler.searchInLogFile( new LogfileSearchInput(new File( FILEPATH ).toPath(), "TEST_LINE_1", true));
+		assertNotNull(result);
+		assertFalse(result.isEmpty());
+		assertEquals(1, result.size());
+	}
+	
+	@Test(expected=NullPointerException.class)
+	public void nulll_parameter_search() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		logfileHandler.searchInLogFile(null);
+	}
+	
+	@Test(expected=NullPointerException.class)
+	public void nulll_parameterPath_search() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		logfileHandler.searchInLogFile(new LogfileSearchInput(null, null, false));
+	}
+	
+	@Test(expected=NullPointerException.class)
+	public void nulll_parameterPattern_search() throws Exception{
+		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
+		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		logfileHandler.searchInLogFile(new LogfileSearchInput(new File( FILEPATH ).toPath(), null, false));
 	}
 }

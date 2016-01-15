@@ -184,6 +184,10 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 	}
 	
 	@Override public List<Integer> searchInLogFile( LogfileSearchInput logfileSearchInput ) {
+		if(logfileSearchInput == null) throw new NullPointerException("logfileSearchInput must not be null!");
+		if(logfileSearchInput.getPath() == null ) throw new NullPointerException("logfileSearchInput.getPath must not be null!");
+		if(logfileSearchInput.getSearchPattern() == null ) throw new NullPointerException("logfileSearchInput.getSearchPattern must not be null!");
+		
 		List<Integer> resultHitList = new LinkedList<>();
 		try( BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(
 				logfileSearchInput.getPath().toFile())))){
