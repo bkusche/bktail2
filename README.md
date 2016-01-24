@@ -30,7 +30,7 @@ mvn clean install
 
 ##License
 
-This project is licensed under the ["Apache Software License, Version 2.0"](http://www.apache.org/licenses/LICENSE-2.0/).
+This project is licensed under the ["Apache Software License, Version 2.0"](http://www.apache.org/licenses/LICENSE-2.0).
 
 ##Konwn issues & limitations
 * The search shortcut keys ``` crtl+f | cmd+f ``` are only responding after clicking into the log file area.
