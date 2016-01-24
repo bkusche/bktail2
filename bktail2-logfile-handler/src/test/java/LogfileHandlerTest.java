@@ -218,6 +218,7 @@ public class LogfileHandlerTest {
 	public void normal_search() throws Exception{
 		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
 		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		Thread.sleep(1000L);
 		try {
 			for( int i = 0; i < maxLines; i++){
 				log.info("TEST_LINE_"+i);
@@ -235,7 +236,7 @@ public class LogfileHandlerTest {
 	public void normal_search_ignoreCase() throws Exception{
 		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
 		logfileHandler.addFileToObserve(new File( FILEPATH ));
-		System.out.println("writing");
+		Thread.sleep(1000L);
 		try {
 			for( int i = 0; i < maxLines; i++){
 				log.info("TEST_LINE_"+i);
@@ -253,6 +254,7 @@ public class LogfileHandlerTest {
 	public void nulll_parameter_search() throws Exception{
 		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
 		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		Thread.sleep(1000L);
 		logfileHandler.searchInLogFile(null);
 	}
 	
@@ -260,6 +262,7 @@ public class LogfileHandlerTest {
 	public void nulll_parameterPath_search() throws Exception{
 		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
 		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		Thread.sleep(1000L);
 		logfileHandler.searchInLogFile(new LogfileSearchInput(null, null, false));
 	}
 	
@@ -267,6 +270,7 @@ public class LogfileHandlerTest {
 	public void nulll_parameterPattern_search() throws Exception{
 		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
 		logfileHandler.addFileToObserve(new File( FILEPATH ));
+		Thread.sleep(1000L);
 		logfileHandler.searchInLogFile(new LogfileSearchInput(new File( FILEPATH ).toPath(), null, false));
 	}
 }
