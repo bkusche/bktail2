@@ -32,7 +32,7 @@ mvn clean install
 
 This project is licensed under the ["Apache Software License, Version 2.0"](http://www.apache.org/licenses/LICENSE-2.0).
 
-##Konwn issues & limitations
+##Known issues & limitations
 * The search shortcut keys ``` crtl+f | cmd+f ``` are only responding after clicking into the log file area.
 * Loading times increasing to the end of log files. This may has something to do with the line based reading mechanism.
 ```java
