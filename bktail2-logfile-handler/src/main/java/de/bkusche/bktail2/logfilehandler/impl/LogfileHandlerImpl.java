@@ -15,6 +15,7 @@
  */
 package de.bkusche.bktail2.logfilehandler.impl;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,6 +43,8 @@ import de.bkusche.bktail2.logfilehandler.LogfileSearchInput;
  */
 public class LogfileHandlerImpl implements I_LogfileHandler{
 
+	final static int CR = 10;
+	
 	private final ExecutorService service;
 	private final List<I_LogfileEventListener> logfileEventListeners;
 	private List<LogfileEvent> logfileEvents;
@@ -53,9 +56,18 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 	 * Count lines of a file
 	 */
 	private Function<File, Long> countLines = t -> {
-		try (Stream<String> stream = Files.lines(t.toPath())) {
-			return stream.count();
-		} catch(Throwable e){}
+		try(BufferedInputStream r = new BufferedInputStream(new FileInputStream(t))) {
+			byte[] buffer = new byte[8192];
+			long lines = 0;
+		    int read;
+
+		    while ((read = r.read(buffer)) != -1)
+		        for (int i = 0; i < read; i++) {
+		            if (buffer[i] == CR) lines++;
+		    }
+
+			return lines;
+		} catch (Throwable e) {}
 		return 0L;
 	};
 	
