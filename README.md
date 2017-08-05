@@ -6,11 +6,11 @@
 
 ![bktail2](https://cloud.githubusercontent.com/assets/16456496/12538099/ade61766-c2d0-11e5-8a62-b19a13b08754.png)
 
-##Intention
+## Intention
 
 What started out as a Java 8 learning exercise, turned into a quiet powerful little log file viewing program. 
 
-##Features
+## Features
 
 * handles large log files up to 500 MB.
 * log file monitoring ( detects creation, modification, deletion ).
@@ -19,7 +19,7 @@ What started out as a Java 8 learning exercise, turned into a quiet powerful lit
 * customizable highlighting colors.
 * search function relative to the viewing position. 
 
-##Building
+## Building
 
 Since this is a Java 8 and Maven based project, you have to make sure that you have Java 8 and Maven 3 installed on your system. 
 
@@ -28,11 +28,11 @@ To build bktail2 simply execute:
 mvn clean install
 ```
 
-##License
+## License
 
 This project is licensed under the ["Apache Software License, Version 2.0"](http://www.apache.org/licenses/LICENSE-2.0).
 
-##Known issues & limitations
+## Known issues & limitations
 * The search shortcut keys ``` crtl+f | cmd+f ``` are only responding after clicking into the log file area.
 * Loading times increasing to the end of log files. This may has something to do with the line based reading mechanism.
 ```java
