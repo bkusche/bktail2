@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -174,13 +175,18 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 		//reusing lineRange list (reference) to avoid unnecessary 0..n references & gc usage  
 		lineRange.clear();
 		long limit = logfileReadInput.getTo()-logfileReadInput.getFrom();	
-		try (Stream<String> stream = Files.lines(logfileReadInput.getPath())) {
-			stream.skip(logfileReadInput.getFrom()).limit(limit)
-				.forEach(lineRange::add); //TODO evaluate performance especially with large files
-		} catch (Throwable e) {
-			// 
-		}
-		return lineRange;
+		boolean useJava6 = true;
+//		try (Stream<String> stream = Files.lines(logfileReadInput.getPath())) {
+//			stream.skip(logfileReadInput.getFrom()).limit(limit)
+//				.forEach(lineRange::add); //TODO evaluate performance especially with large files
+//		} catch (Throwable e) {
+//			// 
+//		}
+		if( useJava6 )
+			return readLinesJava6Way(logfileReadInput.getPath(), logfileReadInput.getFrom(), limit);
+		else
+			return readLinesJava8Way(logfileReadInput.getPath(), logfileReadInput.getFrom(), limit);
+
 	}
 	
 	@Override public void addLogfileEventListener( I_LogfileEventListener l ){
@@ -221,5 +227,56 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 		}
 		
 		return resultHitList;
+	}
+	
+	private List<String> readLinesJava8Way(Path p, final long from, final long limit){
+		try (Stream<String> stream = Files.lines(p)) {
+			stream.skip(from).limit(limit)
+				.forEach(lineRange::add); //TODO evaluate performance especially with large files
+		} catch (Throwable e) {
+			// 
+		}
+		return lineRange;
+	}
+	
+	
+	private List<String> readLinesJava6Way(Path p, final long from, final long limit){
+		long lineStrart = 0;
+		try(BufferedInputStream r = new BufferedInputStream(new FileInputStream(p.toFile()))) {	
+		    final byte[] buffer = new byte[8192];
+		    final int[] line = new int[1];
+		    final boolean[] reading = new boolean[]{true};
+		    int read = 0;
+		    while ((read = r.read(buffer)) != -1 && reading[0]) {
+		    	lineStrart = searchFromIndex(buffer, line, reading, read, from, lineStrart);
+		    }
+
+		} catch (Throwable e) {e.printStackTrace();}
+		
+		try(BufferedRandomAccessFile braf = new BufferedRandomAccessFile(p.toFile(), "r", 8192)){
+			int line = 0;
+			braf.seek(lineStrart+1);
+			while( line < limit){
+				line++;
+				lineRange.add(braf.readNextLine());
+			}
+		} catch (Throwable e) {}
+		return lineRange;
+	}
+	
+	private final long searchFromIndex(final byte[] buffer, final int[] line, final boolean[] reading, 
+			final int read, final long from, long lineStrart) {
+
+		for (int i = 0; i < read; i++) {
+			if (buffer[i] == CR) {
+				line[0]++;
+				if (line[0] == from) {
+					reading[0] = false;
+					break;
+				}
+			}
+			lineStrart++;
+		}
+		return lineStrart;
 	}
 }
