@@ -1,4 +1,4 @@
-package de.bkusche.bktail2.logfilehandler.impl;
+package de.bkusche.bktail2.logfilehandler.internal;
 /**
  * Copyright 2016 Björn Kusche
  * 
