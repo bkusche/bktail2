@@ -265,15 +265,17 @@ public class LogfileHandlerImpl implements I_LogfileHandler{
 		return lineRange;
 	}
 	
-	private final long searchFromIndex(final byte[] buffer, final int[] line, final boolean[] reading, 
-			final int read, final long from, long lineStrart) {
+	private final long searchFromIndex(final byte[] buffer, final int[] line, final boolean[] reading, final int read,
+			final long from, long lineStrart) {
 
 		for (int i = 0; i < read; i++) {
 			if (buffer[i] == CR) {
-				line[0]++;
 				if (line[0] == from) {
 					reading[0] = false;
+//					line[0]++;
 					break;
+				} else {
+					line[0]++;
 				}
 			}
 			lineStrart++;
