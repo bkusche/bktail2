@@ -17,5 +17,5 @@
 module de.bkusche.bktail2.logfilehandler {
     requires java.base;
     exports de.bkusche.bktail2.logfilehandler;
-    exports de.bkusche.bktail2.logfilehandler.impl;
+    provides de.bkusche.bktail2.logfilehandler.I_LogfileHandler with de.bkusche.bktail2.logfilehandler.impl.LogfileHandlerImpl;
 }

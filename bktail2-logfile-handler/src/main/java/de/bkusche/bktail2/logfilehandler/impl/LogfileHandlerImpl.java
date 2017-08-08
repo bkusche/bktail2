@@ -37,7 +37,6 @@ import de.bkusche.bktail2.logfilehandler.I_LogfileHandler;
 import de.bkusche.bktail2.logfilehandler.LogfileEvent;
 import de.bkusche.bktail2.logfilehandler.LogfileReadInput;
 import de.bkusche.bktail2.logfilehandler.LogfileSearchInput;
-import de.bkusche.bktail2.logfilehandler.internal.BufferedRandomAccessFile;
 
 /**
  * @author bkusche

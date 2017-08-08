@@ -27,7 +27,7 @@ import de.bkusche.bktail2.logfilehandler.I_LogfileHandler;
 import de.bkusche.bktail2.logfilehandler.LogfileEvent;
 import de.bkusche.bktail2.logfilehandler.LogfileReadInput;
 import de.bkusche.bktail2.logfilehandler.LogfileSearchInput;
-import de.bkusche.bktail2.logfilehandler.impl.LogfileHandlerImpl;
+import java.util.ServiceLoader;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -91,7 +91,7 @@ public class LogviewerController implements I_LogfileEventListener{
 	
 	public LogviewerController() {
 		
-		logfileHandler = new LogfileHandlerImpl();
+		logfileHandler = ServiceLoader.load(I_LogfileHandler.class).findFirst().get();
 		logfileHandler.addLogfileEventListener(this);
 		executorService = Executors.newFixedThreadPool(3);
 		content = new ArrayList<>();

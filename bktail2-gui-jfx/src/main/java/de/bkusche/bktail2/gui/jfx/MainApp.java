@@ -38,7 +38,7 @@ public class MainApp extends Application {
 		String fxmlFile = "/fxml/TabbedMainView.fxml";
 
 		FXMLLoader loader = new FXMLLoader();
-		Parent rootNode = (Parent) loader.load(getClass().getResourceAsStream(fxmlFile));
+		Parent rootNode = (Parent) loader.load(MainApp.class.getResourceAsStream(fxmlFile));
 		Scene scene = new Scene(rootNode, 1024, 768);
 
 		scene.getStylesheets().add("/styles/styles.css");

@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import de.bkusche.bktail2.logfilehandler.internal.BufferedRandomAccessFile;
+import de.bkusche.bktail2.logfilehandler.impl.BufferedRandomAccessFile;
 
 public class SpeedTest {
 
