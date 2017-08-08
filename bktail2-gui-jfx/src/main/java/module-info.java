@@ -20,6 +20,6 @@ module de.bkusche.bktail2.gui.jfx {
     requires javafx.fxml;
     requires java.prefs;
     exports de.bkusche.bktail2.gui.jfx to javafx.graphics;
-    opens de.bkusche.bktail2.gui.jfx to javafx.fxml;
+    opens de.bkusche.bktail2.gui.jfx to javafx.fxml, javafx.base;
     uses de.bkusche.bktail2.logfilehandler.I_LogfileHandler;
 }
