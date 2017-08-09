@@ -41,7 +41,7 @@ public class MainApp extends Application {
 		Parent rootNode = (Parent) loader.load(MainApp.class.getResourceAsStream(fxmlFile));
 		Scene scene = new Scene(rootNode, 1024, 768);
 
-		scene.getStylesheets().add("/styles/styles.css");
+		scene.getStylesheets().add(MainApp.class.getResource("/styles/styles.css").toExternalForm());
 		stage.setTitle("bktail2");
 		stage.setScene(scene);
 		stage.setOnCloseRequest(e -> System.exit(1) );
