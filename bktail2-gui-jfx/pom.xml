@@ -16,18 +16,6 @@
 		<slf4j.version>1.6.1</slf4j.version>
 	</properties>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>com.zenjava</groupId>
-				<artifactId>javafx-maven-plugin</artifactId>
-				<configuration>
-					<mainClass>de.bkusche.bktail2.gui.jfx.MainApp</mainClass>
-				</configuration>
-			</plugin>
-		</plugins>
-
-	</build>
 	<dependencies>
 
 		<dependency>
