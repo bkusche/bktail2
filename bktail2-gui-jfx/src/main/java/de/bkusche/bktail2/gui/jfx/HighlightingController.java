@@ -110,6 +110,9 @@ public class HighlightingController {
     @FXML void onOK(ActionEvent event) {
     	//
     	//update main theme
+        try {
+            preferences.clear();
+        } catch (Throwable e) {}
     	preferences.put(Highlighting.THEME_TEXTCOLOR, btnText.getValue().toString().replace("0x", "#"));
     	preferences.put(Highlighting.THEME_BACKGROUNDCOLOR, btnBackground.getValue().toString().replace("0x", "#"));
     	//
@@ -123,11 +126,11 @@ public class HighlightingController {
     	}
     	
     	try {
-			preferences.flush();
-		} catch (BackingStoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                preferences.flush();
+        } catch (BackingStoreException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+        }
     	
     	((Stage)btnOK.getScene().getWindow()).close();
     }
