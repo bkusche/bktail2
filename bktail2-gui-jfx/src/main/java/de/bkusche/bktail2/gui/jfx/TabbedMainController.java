@@ -127,7 +127,7 @@ public class TabbedMainController{
 			Parent rootNode = (Parent) loader.load();
 			Scene scene = new Scene(rootNode);
 
-			scene.getStylesheets().add("/styles/styles.css");
+			scene.getStylesheets().add(TabbedMainController.class.getResource("/styles/styles.css").toExternalForm());
 			stage.setTitle("bktail2 highlighting");
 			stage.setScene(scene);
 			stage.show();
