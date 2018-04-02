@@ -85,11 +85,10 @@ public class TabbedMainController{
 
 	@FXML void mouseDragOver(final DragEvent e) {
         final Dragboard db = e.getDragboard();
- 
-        final boolean isAccepted = db.getFiles().get(0).getName().toLowerCase().endsWith(".log")
-                || db.getFiles().get(0).getName().toLowerCase().endsWith(".txt");
- 
+
         if (db.hasFiles()) {
+			final boolean isAccepted = db.getFiles().get(0).getName().toLowerCase().endsWith(".log")
+					|| db.getFiles().get(0).getName().toLowerCase().endsWith(".txt");
             if (isAccepted) {
                 tabpane.setStyle("-fx-border-color: red;"
               + "-fx-border-width: 5;"
