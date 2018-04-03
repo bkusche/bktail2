@@ -27,7 +27,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -139,16 +138,19 @@ public class TabbedMainController{
 	private void openLogTab( File logfile ){
 		Platform.runLater( () -> {
 			try {
+				BktailTab tab = new BktailTab(logfile.getName());
+				tab.setClosable(true);
 				FXMLLoader loader = new FXMLLoader(getClass().getResource(logViewerFxmlFile));
 				loader.setControllerFactory( p ->{
 			    	LogviewerController lc = new LogviewerController();
 			    	lc.init(logfile,
 			    			theme,
 			    			highlightings);
+					tab.setTailActionEventListener(lc);
+					lc.setTailActionEventListener(tab);
 			    	return lc;
 				});
-				Tab tab = new Tab(logfile.getName());
-				tab.setClosable(true);
+
 				tab.setContent(loader.load());
 				tab.setOnClosed(e -> {
 					((LogviewerController)loader.getController()).dispose();

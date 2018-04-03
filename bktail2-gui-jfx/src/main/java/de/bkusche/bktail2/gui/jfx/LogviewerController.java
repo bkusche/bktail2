@@ -57,7 +57,7 @@ import javafx.util.Duration;
  *
  */
 @SuppressWarnings({"rawtypes","unchecked", "restriction"})
-public class LogviewerController implements I_LogfileEventListener{
+public class LogviewerController implements I_LogfileEventListener, I_TailActionEventListener{
 
 	private static final String EMPTY = "";
 	private static final int MAXLINESTOREAD = 5000;
@@ -88,7 +88,8 @@ public class LogviewerController implements I_LogfileEventListener{
 	private int searchHitPos;
 	private long from;
 	private boolean ignoreCase;
-	
+	private I_TailActionEventListener tailActionEventListener;
+
 	public LogviewerController() {
 		
 		logfileHandler = ServiceLoader.load(I_LogfileHandler.class).findFirst().get();
@@ -131,18 +132,18 @@ public class LogviewerController implements I_LogfileEventListener{
 		logContent.setCellFactory(p -> {
 			ListCell<String> cell = new ListCell<String>(){
 				@Override protected void updateItem(String item, boolean empty) {
-					super.updateItem(item, empty);
-					setStyle("-fx-background-color: "+theme.getBackgroundColor().toString().replace("0x", "#"));
-					setTextFill(theme.getForegroundColor());
-					if( empty ) return;
-					setText(item);
-		            setGraphic(null);
-		            for( Highlighting h : highlightings ){
-		            	if( !item.contains(h.getText())) continue;
-		            	setStyle("-fx-background-color: "+h.backgroundColorProperty().getValue().toString().replace("0x", "#"));
-		            	setTextFill(h.textColorProperty().getValue());
-		            	return;
-		            }
+				super.updateItem(item, empty);
+				setStyle("-fx-background-color: "+theme.getBackgroundColor().toString().replace("0x", "#"));
+				setTextFill(theme.getForegroundColor());
+				if( empty ) return;
+				setText(item);
+				setGraphic(null);
+				for( Highlighting h : highlightings ){
+					if( !item.contains(h.getText())) continue;
+					setStyle("-fx-background-color: "+h.backgroundColorProperty().getValue().toString().replace("0x", "#"));
+					setTextFill(h.textColorProperty().getValue());
+					return;
+				}
 				}
 			};
 			return cell;
@@ -154,12 +155,25 @@ public class LogviewerController implements I_LogfileEventListener{
 		//
 		// monitoring the view position
 		executorService.execute(() ->{
+			boolean selected = false;
 			while(running.get()){
 				try {
 					ListViewSkin<?> ts = (ListViewSkin<?>) logContent.getSkin();
 			        VirtualFlow<?> vf = (VirtualFlow<?>) ts.getChildren().get(0);
 			        first = vf.getFirstVisibleCell().getIndex();
 			        last = vf.getLastVisibleCell().getIndex();
+
+					if( tailActionEventListener != null) {
+						if (last == event.getLines() - 1) {
+							selected = true;
+							this.tailActionEventListener.onTailChangedActionEvent(selected);
+						} else {
+							if (selected) {
+								selected = false;
+								this.tailActionEventListener.onTailChangedActionEvent(selected);
+							}
+						}
+					}
 					Thread.sleep(100L);
 				} catch (Throwable e) {}	
 			}
@@ -293,6 +307,15 @@ public class LogviewerController implements I_LogfileEventListener{
     	performSearch();
     }
 
+	@Override
+	public void onTailChangedActionEvent(boolean selected) {
+		selectSearchHit((int) (event.getLines()-1));
+	}
+
+	public void setTailActionEventListener(I_TailActionEventListener tailActionEventListener) {
+		this.tailActionEventListener = tailActionEventListener;
+	}
+
     private void performSearch() {
     	searchHitList = logfileHandler.searchInLogFile(new LogfileSearchInput(event.getPath(), 
 				searchFiled.getText(), ignoreCase));
@@ -400,5 +423,5 @@ public class LogviewerController implements I_LogfileEventListener{
 			});
 		}
 	}
-	
+
 }
