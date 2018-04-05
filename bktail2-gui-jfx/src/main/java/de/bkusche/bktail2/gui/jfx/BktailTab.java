@@ -23,6 +23,7 @@ import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.ImageView;
@@ -55,6 +56,7 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
 
     private static final Map<Integer,TabPane> tabPanes;
     private static final Stage markerStage;
+
     private HBox control;
     private Label label;
     private CheckBox checkBox;
@@ -72,6 +74,10 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
         StackPane markerStack = new StackPane();
         markerStack.getChildren().add(dummy);
         markerStage.setScene(new Scene(markerStack));
+    }
+
+    public static void addMainTabpane(TabPane tabPane) {
+        tabPanes.put(tabPanes.size(),tabPane);
     }
 
     public static List<TabPane> getTabPanes() {
@@ -204,6 +210,8 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
 
     public void setChecked( boolean checked ){
         checkBox.setSelected(checked);
+        if( tailActionEventListener != null)
+            tailActionEventListener.onTailChangedActionEvent(checkBox.isSelected());
     }
 
     private void displayDraggedTabPreview(MouseEvent mouseEvent) {
@@ -267,8 +275,9 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
     }
 
     private void detachNewStage(double x, double y, boolean removeFromOld, BktailTab bktailTab) {
-        final Stage newStage = new Stage();
-        final TabPane pane = new TabPane();
+        Stage newStage = new Stage();
+        VBox vBox = new VBox();
+        TabPane pane = new TabPane();
         tabPanes.put(tabPanes.size(),pane);
         newStage.setOnCloseRequest(w -> tabPanes.remove(pane));
         //newStage.setOnHiding(w -> tabPanes.remove(pane));
@@ -280,7 +289,9 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
                 newStage.hide();
             }
         });
-        newStage.setScene(new Scene(pane));
+
+        vBox.getChildren().add(pane);
+        newStage.setScene(new Scene(vBox));
         newStage.initStyle(StageStyle.DECORATED);
         newStage.setX(x);
         newStage.setY(y);

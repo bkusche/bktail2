@@ -16,6 +16,7 @@
 package de.bkusche.bktail2.gui.jfx;
 
 import de.bkusche.bktail2.logfilehandler.LogfileEvent;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -82,7 +83,7 @@ public class TabbedMainController{
 
 		//
         //registering initial "main" tabpane
-		BktailTab.getTabPanes().add(tabpane);
+		BktailTab.addMainTabpane(tabpane);
 
 		//
 		//restore previously opened tabs
@@ -167,7 +168,6 @@ public class TabbedMainController{
 		try {
 			BktailTab tab = new BktailTab(logfile.getName());
 			tab.setClosable(true);
-			tab.setChecked(checked);
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(logViewerFxmlFile));
 			loader.setControllerFactory( p ->{
 				LogviewerController lc = new LogviewerController();
@@ -196,6 +196,9 @@ public class TabbedMainController{
 				});
 				tabpane.getTabs().add(tab);
 			}
+			Platform.runLater( () -> {
+				tab.setChecked(checked);
+			});
 		} catch (Throwable ex) {
 			// TODO display error message
 			ex.printStackTrace();
@@ -203,6 +206,7 @@ public class TabbedMainController{
 	}
 
 	private void restoreOpenTabs(){
+        System.out.println("performing restoreOpenTabs....");
 		try {
 			Set<String> keys = new HashSet<>();
 			Arrays.stream(prefs.keys()).filter(f -> f.startsWith(WINDOW)).sorted().forEach(key -> {
@@ -214,7 +218,7 @@ public class TabbedMainController{
 				String name = prefs.get(key+"."+NAME,null);
 				String path = prefs.get(key+"."+PATH,null);
 				boolean checked = Boolean.valueOf(prefs.get(key+"."+CHECKED,null));
-				System.out.println();
+                System.out.println("window #"+window+" tab #"+tab+" file "+name+" checked "+checked);
 				openLogTab(new File(path), checked, window);
 			});
 		} catch (Exception e) {
@@ -222,8 +226,7 @@ public class TabbedMainController{
 		}
 	}
 
-	private void shutdown()
-    {
+	private void shutdown() {
         System.out.println("performing shutdown....");
         try {
 			Arrays.stream(prefs.keys()).filter(f -> f.startsWith(WINDOW)).sorted().forEach(prefs::remove);
@@ -235,7 +238,7 @@ public class TabbedMainController{
                 {
                     BktailTab tab = (BktailTab) tabPane.getTabs().get(t);
                     LogfileEvent event = tab.getLogviewerController().getEvent();
-                    System.out.println("window #"+i+" tab #"+t+" file "+event.getName());
+                    System.out.println("window #"+i+" tab #"+t+" file "+event.getName()+" checked "+tab.isChecked());
                     String name  = WINDOW+"_"+i+"&"+TAB+"_"+t+"."+NAME;
                     String path = WINDOW+"_"+i+"&"+TAB+"_"+t+"."+PATH;
                     String checked = WINDOW+"_"+i+"&"+TAB+"_"+t+"."+CHECKED;

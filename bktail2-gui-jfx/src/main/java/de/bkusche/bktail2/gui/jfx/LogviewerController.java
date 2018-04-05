@@ -294,7 +294,7 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
     			break;
     		}
     	}
-    	searchHitPos++;
+    	//searchHitPos++;
     	selectSearchHit(searchHitList.get(searchHitPos));
     	searchHitLabel.setText(searchHitPos+1+" of "+searchHitList.size()+" matches");
     }
@@ -310,7 +310,8 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 
 	@Override
 	public void onTailChangedActionEvent(boolean selected) {
-		selectSearchHit((int) (event.getLines()-1));
+		if( selected && event!= null )
+			selectSearchHit((int) (event.getLines()-1));
 	}
 
 	public void setTailActionEventListener(I_TailActionEventListener tailActionEventListener) {
@@ -333,10 +334,8 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
     
     private void selectSearchHit( int searchHitPos ){
     	System.out.println("searchHitPos: "+searchHitPos);
-    	Platform.runLater(()->{
-    		logContent.scrollTo(searchHitPos);
-    		logContent.getSelectionModel().select(searchHitPos);
-    	});
+		logContent.scrollTo(searchHitPos);
+		logContent.getSelectionModel().select(searchHitPos);
     }
 	
     //
@@ -386,11 +385,7 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 		timelineBounce.getKeyFrames().add(kf1);
 		//
 		// Event handler to call bouncing effect after the scroll down is finished.
-		EventHandler<ActionEvent> handler = new EventHandler<ActionEvent>() {
-			@Override public void handle(ActionEvent event) {
-				timelineBounce.play();
-			}
-		};
+		EventHandler<ActionEvent> handler = event -> timelineBounce.play();
 		return handler;
 	}
 	
