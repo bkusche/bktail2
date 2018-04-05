@@ -186,7 +186,7 @@ public class TabbedMainController{
 					BktailTab.createDetachedStage(100, 100, tab);
 				}
 				else {
-					new LinkedList<>(BktailTab.getTabPanes()).get(window).getTabs().add(tab);
+					BktailTab.getTabPanes().get(window).getTabs().add(tab);
 				}
 			}
 			else {
@@ -227,7 +227,7 @@ public class TabbedMainController{
         System.out.println("performing shutdown....");
         try {
 			Arrays.stream(prefs.keys()).filter(f -> f.startsWith(WINDOW)).sorted().forEach(prefs::remove);
-            List<TabPane> tabpanes = new LinkedList(BktailTab.getTabPanes());
+            List<TabPane> tabpanes = BktailTab.getTabPanes();
             for( int i = 0; i < tabpanes.size(); i++)
             {
                 TabPane tabPane = tabpanes.get(i);

@@ -39,8 +39,10 @@ import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -51,7 +53,7 @@ import java.util.Set;
  */
 public class BktailTab extends Tab implements I_TailActionEventListener {
 
-    private static final Set<TabPane> tabPanes;
+    private static final Map<Integer,TabPane> tabPanes;
     private static final Stage markerStage;
     private HBox control;
     private Label label;
@@ -63,7 +65,7 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
     private LogviewerController logviewerController;
 
     static {
-        tabPanes = new HashSet<>();
+        tabPanes = new HashMap<>();
         markerStage = new Stage();
         markerStage.initStyle(StageStyle.UNDECORATED);
         Rectangle dummy = new Rectangle(3, 20, Color.web("#ff00e4"));
@@ -72,8 +74,8 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
         markerStage.setScene(new Scene(markerStack));
     }
 
-    public static Set<TabPane> getTabPanes() {
-        return tabPanes;
+    public static List<TabPane> getTabPanes() {
+        return tabPanes.keySet().stream().sorted().map(tabPanes::get).collect(Collectors.toList());
     }
 
     public static void createDetachedStage(double x, double y, BktailTab bktailTab) {
@@ -101,7 +103,7 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
                 displayDraggedTabPreview(mouseEvent);
 
                 Point2D screenPoint = new Point2D(mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                tabPanes.add(getTabPane());
+                //tabPanes.put(tabPanes.size(),getTabPane());
                 InsertData data = getInsertData(screenPoint);
                 if(data == null || data.getInsertPane().getTabs().isEmpty()) {
                     markerStage.hide();
@@ -115,7 +117,13 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
                     }
                     Rectangle2D rect = getAbsoluteRect(data.getInsertPane().getTabs().get(index));
                     if(end) {
-                        markerStage.setX(rect.getMaxX() + 5);
+                        if( data.getInsertPane().getTabs().get(data.getInsertPane().getTabs().size()-1).isSelected())
+                        {
+                            markerStage.setX(rect.getMaxX() + 20);
+                        }
+                        else {
+                            markerStage.setX(rect.getMaxX() + 5);
+                        }
                     }
                     else {
                         markerStage.setX(rect.getMinX()-10);
@@ -140,7 +148,8 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
                 Point2D screenPoint = new Point2D(mouseEvent.getScreenX(), mouseEvent.getScreenY());
                 TabPane oldTabPane = getTabPane();
                 int oldIndex = oldTabPane.getTabs().indexOf(BktailTab.this);
-                tabPanes.add(oldTabPane);
+                if( !getTabPanes().contains(oldTabPane))
+                    tabPanes.put(tabPanes.size(),oldTabPane);
                 InsertData insertData = getInsertData(screenPoint);
 
                 if(insertData != null) {
@@ -219,7 +228,7 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
 
 
     private InsertData getInsertData(Point2D screenPoint) {
-        for(TabPane tabPane : tabPanes) {
+        for(TabPane tabPane : getTabPanes()) {
             Rectangle2D tabAbsolute = getAbsoluteRect(tabPane);
             if(!tabAbsolute.contains(screenPoint) || tabPane.getTabs().isEmpty()) {
                 continue;
@@ -260,8 +269,9 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
     private void detachNewStage(double x, double y, boolean removeFromOld, BktailTab bktailTab) {
         final Stage newStage = new Stage();
         final TabPane pane = new TabPane();
-        tabPanes.add(pane);
-        newStage.setOnHiding(w -> tabPanes.remove(pane));
+        tabPanes.put(tabPanes.size(),pane);
+        newStage.setOnCloseRequest(w -> tabPanes.remove(pane));
+        //newStage.setOnHiding(w -> tabPanes.remove(pane));
         if( removeFromOld)
             getTabPane().getTabs().remove(bktailTab);
         pane.getTabs().add(bktailTab);
