@@ -76,6 +76,10 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
         return tabPanes;
     }
 
+    public static void createDetachedStage(double x, double y, BktailTab bktailTab) {
+        bktailTab.detachNewStage(x, y, false, bktailTab);
+    }
+
     public BktailTab(String text) {
         checkBox = new CheckBox();
         checkBox.setOnAction(event -> {
@@ -159,7 +163,7 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
                 }
 
                 if(detachable) {
-                    detachNewStage(mouseEvent.getX(),mouseEvent.getY());
+                    detachNewStage(mouseEvent.getX(),mouseEvent.getY(),true, BktailTab.this);
                 }
             }
             finally{
@@ -253,13 +257,14 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
         return null;
     }
 
-    private void detachNewStage(double x, double y) {
+    private void detachNewStage(double x, double y, boolean removeFromOld, BktailTab bktailTab) {
         final Stage newStage = new Stage();
         final TabPane pane = new TabPane();
         tabPanes.add(pane);
         newStage.setOnHiding(w -> tabPanes.remove(pane));
-        getTabPane().getTabs().remove(BktailTab.this);
-        pane.getTabs().add(BktailTab.this);
+        if( removeFromOld)
+            getTabPane().getTabs().remove(bktailTab);
+        pane.getTabs().add(bktailTab);
         pane.getTabs().addListener((ListChangeListener<Tab>) change -> {
             if(pane.getTabs().isEmpty()) {
                 newStage.hide();

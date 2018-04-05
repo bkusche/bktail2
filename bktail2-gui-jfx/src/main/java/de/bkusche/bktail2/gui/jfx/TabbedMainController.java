@@ -15,21 +15,13 @@
  */
 package de.bkusche.bktail2.gui.jfx;
 
-import java.io.File;
-import java.util.*;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
-
 import de.bkusche.bktail2.logfilehandler.LogfileEvent;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -37,6 +29,18 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.prefs.Preferences;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author bkusche
@@ -58,12 +62,13 @@ public class TabbedMainController{
 	private Preferences prefs;
 	private List<Highlighting> highlightings;
 	private Theme theme;
+	private ScheduledExecutorService scheduledExecutorService;
 	@FXML TabPane tabpane;
 	@FXML MenuBar menuBar;
 
 
 	public TabbedMainController() {
-		
+		scheduledExecutorService = Executors.newScheduledThreadPool(1);
 	}
 	
 	@FXML void initialize() {
@@ -84,7 +89,9 @@ public class TabbedMainController{
         //registering initial "main" tabpane
 		BktailTab.getTabPanes().add(tabpane);
 
+		//scheduledExecutorService.schedule(()->restoreOpenTabs(), 2000L, TimeUnit.MILLISECONDS);
 		restoreOpenTabs();
+
 		//
         //registering a shutdown hook thread
 		Runtime.getRuntime().addShutdownHook( new Thread(() -> {
@@ -157,10 +164,10 @@ public class TabbedMainController{
 		}
 	}
 	private void openLogTab( File logfile ){
-		openLogTab(logfile,false);
+		openLogTab(logfile,false, 0);
 	}
 
-	private void openLogTab( File logfile, boolean checked ){
+	private void openLogTab( File logfile, boolean checked, int window ){
 		try {
 			BktailTab tab = new BktailTab(logfile.getName());
 			tab.setClosable(true);
@@ -178,11 +185,21 @@ public class TabbedMainController{
 			});
 
 			tab.setContent(loader.load());
-			tab.setOnClosed(e -> {
-				((LogviewerController)loader.getController()).dispose();
-				tabpane.getTabs().remove(e.getSource());
-			});
-			tabpane.getTabs().add(tab);
+			if( window > 0 ) {
+				if (window > BktailTab.getTabPanes().size() - 1) {
+					BktailTab.createDetachedStage(100, 100, tab);
+				}
+				else {
+					new LinkedList<>(BktailTab.getTabPanes()).get(window).getTabs().add(tab);
+				}
+			}
+			else {
+				tab.setOnClosed(e -> {
+					((LogviewerController) loader.getController()).dispose();
+					tabpane.getTabs().remove(e.getSource());
+				});
+				tabpane.getTabs().add(tab);
+			}
 		} catch (Throwable ex) {
 			// TODO display error message
 			ex.printStackTrace();
@@ -202,7 +219,7 @@ public class TabbedMainController{
 				String path = prefs.get(key+"."+PATH,null);
 				boolean checked = Boolean.valueOf(prefs.get(key+"."+CHECKED,null));
 				System.out.println();
-				openLogTab(new File(path), checked);
+				openLogTab(new File(path), checked, window);
 			});
 		} catch (Exception e) {
 			e.printStackTrace();
