@@ -56,7 +56,6 @@ import javafx.util.Duration;
  * @author bkusche
  *
  */
-@SuppressWarnings({"rawtypes","unchecked", "restriction"})
 public class LogviewerController implements I_LogfileEventListener, I_TailActionEventListener{
 
 	private static final String EMPTY = "";
@@ -64,7 +63,6 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 	private static final int RELOADTHRESHOLD = 5000;
 	
 	@FXML AnchorPane anchor;
-	@FXML ScrollPane scrollPane;	
 	@FXML ListView logContent;
 	@FXML AnchorPane extendableSearchPane;
 	@FXML Label searchHitLabel;
@@ -110,7 +108,7 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 	
 	@FXML void initialize() {
 
-		observableList = new ModifiableObservableListBase<String>() {
+		observableList = new ModifiableObservableListBase<>() {
 
 			@Override public String get(int index) {
 				if( content == null || content.size() == 0 ) return EMPTY;
@@ -130,7 +128,7 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 		};
 		
 		logContent.setCellFactory(p -> {
-			ListCell<String> cell = new ListCell<String>(){
+			ListCell<String> cell = new ListCell<>(){
 				@Override protected void updateItem(String item, boolean empty) {
 				super.updateItem(item, empty);
 				setStyle("-fx-background-color: "+theme.getBackgroundColor().toString().replace("0x", "#"));
@@ -251,7 +249,11 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 		running.set(false);
 		logfileHandler.stopObserving();
 	}
-	
+
+	public LogfileEvent getEvent() {
+		return event;
+	}
+
 	@FXML void onKeyTyped(KeyEvent event) {
 		try {
 			if( new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN).match(event)

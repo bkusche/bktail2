@@ -60,6 +60,7 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
     private Stage dragPreview;
     private boolean detachable;
     private I_TailActionEventListener tailActionEventListener;
+    private LogviewerController logviewerController;
 
     static {
         tabPanes = new HashSet<>();
@@ -71,6 +72,9 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
         markerStage.setScene(new Scene(markerStack));
     }
 
+    public static Set<TabPane> getTabPanes() {
+        return tabPanes;
+    }
 
     public BktailTab(String text) {
         checkBox = new CheckBox();
@@ -155,7 +159,7 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
                 }
 
                 if(detachable) {
-                    detachNewStage(mouseEvent);
+                    detachNewStage(mouseEvent.getX(),mouseEvent.getY());
                 }
             }
             finally{
@@ -168,9 +172,25 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
         this.tailActionEventListener = tailActionEventListener;
     }
 
+    public LogviewerController getLogviewerController() {
+        return logviewerController;
+    }
+
+    public void setLogviewerController(LogviewerController logviewerController) {
+        this.logviewerController = logviewerController;
+    }
+
     @Override
     public void onTailChangedActionEvent(boolean selected) {
         checkBox.setSelected(selected);
+    }
+
+    public boolean isChecked() {
+        return checkBox.isSelected();
+    }
+
+    public void setChecked( boolean checked ){
+        checkBox.setSelected(checked);
     }
 
     private void displayDraggedTabPreview(MouseEvent mouseEvent) {
@@ -233,7 +253,7 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
         return null;
     }
 
-    private void detachNewStage(MouseEvent t) {
+    private void detachNewStage(double x, double y) {
         final Stage newStage = new Stage();
         final TabPane pane = new TabPane();
         tabPanes.add(pane);
@@ -247,8 +267,8 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
         });
         newStage.setScene(new Scene(pane));
         newStage.initStyle(StageStyle.DECORATED);
-        newStage.setX(t.getScreenX());
-        newStage.setY(t.getScreenY());
+        newStage.setX(x);
+        newStage.setY(y);
         newStage.show();
         pane.requestLayout();
         pane.requestFocus();

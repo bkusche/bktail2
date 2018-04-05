@@ -16,17 +16,20 @@
 package de.bkusche.bktail2.gui.jfx;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import de.bkusche.bktail2.logfilehandler.LogfileEvent;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -43,6 +46,14 @@ public class TabbedMainController{
 
 	private static final String logViewerFxmlFile = "/fxml/Logviewer.fxml";
 	private static final String highlightingFxmlFile = "/fxml/HighlightingView.fxml";
+
+	//
+    //TAB RELATED CONFIGURATION VALUES
+	private static final String WINDOW = "WINDOW";
+    private static final String TAB = "TAB";
+    private static final String PATH = "PATH";
+    private static final String NAME = "NAME";
+    private static final String CHECKED = "CHECKED";
 	
 	private Preferences prefs;
 	private List<Highlighting> highlightings;
@@ -68,6 +79,17 @@ public class TabbedMainController{
 			theme.setBackgroundColor(Color.web(prefs.get(Highlighting.THEME_BACKGROUNDCOLOR, "#000000")));
 			Highlighting.loadFromPreferences(prefs, highlightings);
 		});
+
+		//
+        //registering initial "main" tabpane
+		BktailTab.getTabPanes().add(tabpane);
+
+		restoreOpenTabs();
+		//
+        //registering a shutdown hook thread
+		Runtime.getRuntime().addShutdownHook( new Thread(() -> {
+            shutdown();
+        }));
 	}
 	
 	@FXML void onDragDroppedEvent(DragEvent e){
@@ -134,33 +156,83 @@ public class TabbedMainController{
 			e.printStackTrace();
 		}
 	}
-	
 	private void openLogTab( File logfile ){
-		Platform.runLater( () -> {
-			try {
-				BktailTab tab = new BktailTab(logfile.getName());
-				tab.setClosable(true);
-				FXMLLoader loader = new FXMLLoader(getClass().getResource(logViewerFxmlFile));
-				loader.setControllerFactory( p ->{
-			    	LogviewerController lc = new LogviewerController();
-			    	lc.init(logfile,
-			    			theme,
-			    			highlightings);
-					tab.setTailActionEventListener(lc);
-					lc.setTailActionEventListener(tab);
-			    	return lc;
-				});
-
-				tab.setContent(loader.load());
-				tab.setOnClosed(e -> {
-					((LogviewerController)loader.getController()).dispose();
-					tabpane.getTabs().remove(e.getSource());
-				});
-				tabpane.getTabs().add(tab);
-			} catch (Throwable ex) {
-				// TODO display error message
-				ex.printStackTrace();
-			}
-		});
+		openLogTab(logfile,false);
 	}
+
+	private void openLogTab( File logfile, boolean checked ){
+		try {
+			BktailTab tab = new BktailTab(logfile.getName());
+			tab.setClosable(true);
+			tab.setChecked(checked);
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(logViewerFxmlFile));
+			loader.setControllerFactory( p ->{
+				LogviewerController lc = new LogviewerController();
+				lc.init(logfile,
+						theme,
+						highlightings);
+				tab.setTailActionEventListener(lc);
+				tab.setLogviewerController(lc);
+				lc.setTailActionEventListener(tab);
+				return lc;
+			});
+
+			tab.setContent(loader.load());
+			tab.setOnClosed(e -> {
+				((LogviewerController)loader.getController()).dispose();
+				tabpane.getTabs().remove(e.getSource());
+			});
+			tabpane.getTabs().add(tab);
+		} catch (Throwable ex) {
+			// TODO display error message
+			ex.printStackTrace();
+		}
+	}
+
+	private void restoreOpenTabs(){
+		try {
+			Set<String> keys = new HashSet<>();
+			Arrays.stream(prefs.keys()).filter(f -> f.startsWith(WINDOW)).sorted().forEach(key -> {
+				keys.add(key.split("\\.")[0]);
+			});
+			keys.stream().sorted().forEach(key -> {
+				int window = Integer.valueOf(key.split("\\.")[0].split("&")[0].split("_")[1]);
+				int tab = Integer.valueOf(key.split("\\.")[0].split("&")[0].split("_")[1]);
+				String name = prefs.get(key+"."+NAME,null);
+				String path = prefs.get(key+"."+PATH,null);
+				boolean checked = Boolean.valueOf(prefs.get(key+"."+CHECKED,null));
+				System.out.println();
+				openLogTab(new File(path), checked);
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void shutdown()
+    {
+        System.out.println("performing shutdown....");
+        try {
+			Arrays.stream(prefs.keys()).filter(f -> f.startsWith(WINDOW)).sorted().forEach(prefs::remove);
+            List<TabPane> tabpanes = new LinkedList(BktailTab.getTabPanes());
+            for( int i = 0; i < tabpanes.size(); i++)
+            {
+                TabPane tabPane = tabpanes.get(i);
+                for( int t = 0; t < tabPane.getTabs().size(); t++)
+                {
+                    BktailTab tab = (BktailTab) tabPane.getTabs().get(t);
+                    LogfileEvent event = tab.getLogviewerController().getEvent();
+                    System.out.println("window #"+i+" tab #"+t+" file "+event.getName());
+                    String name  = WINDOW+"_"+i+"&"+TAB+"_"+t+"."+NAME;
+                    String path = WINDOW+"_"+i+"&"+TAB+"_"+t+"."+PATH;
+                    String checked = WINDOW+"_"+i+"&"+TAB+"_"+t+"."+CHECKED;
+                    prefs.put(name, event.getName());
+                    prefs.put(path, event.getPath().toString());
+                    prefs.put(checked, String.valueOf(tab.isChecked()));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
