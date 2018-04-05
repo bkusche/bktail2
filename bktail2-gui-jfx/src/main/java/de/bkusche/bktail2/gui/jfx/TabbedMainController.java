@@ -37,10 +37,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author bkusche
@@ -62,13 +59,11 @@ public class TabbedMainController{
 	private Preferences prefs;
 	private List<Highlighting> highlightings;
 	private Theme theme;
-	private ScheduledExecutorService scheduledExecutorService;
 	@FXML TabPane tabpane;
 	@FXML MenuBar menuBar;
 
 
 	public TabbedMainController() {
-		scheduledExecutorService = Executors.newScheduledThreadPool(1);
 	}
 	
 	@FXML void initialize() {
@@ -89,7 +84,8 @@ public class TabbedMainController{
         //registering initial "main" tabpane
 		BktailTab.getTabPanes().add(tabpane);
 
-		//scheduledExecutorService.schedule(()->restoreOpenTabs(), 2000L, TimeUnit.MILLISECONDS);
+		//
+		//restore previously opened tabs
 		restoreOpenTabs();
 
 		//
