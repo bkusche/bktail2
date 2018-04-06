@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Björn Kusche
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,15 +15,11 @@
  */
 package de.bkusche.bktail2.gui.jfx;
 
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
-
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -41,6 +37,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
+
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 /**
  * @author bkusche
@@ -70,18 +69,12 @@ public class HighlightingController {
     	highlightings = FXCollections.observableArrayList();
     	
     	tblColText.setCellValueFactory(new PropertyValueFactory<>("text"));
-    	tblColText.setCellFactory( column -> { 
-    		return new HighLightingTextCell();
-		});
+    	tblColText.setCellFactory( column -> new HighLightingTextCell());
     	
     	// define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
-    	tblColColor.setCellValueFactory( features -> {
-    		return new SimpleBooleanProperty(features.getValue() != null);
-    	});
+    	tblColColor.setCellValueFactory( features -> new SimpleBooleanProperty(features.getValue() != null));
     	
-    	tblColColor.setCellFactory( column -> { 
-    		return new HighlightingButtonCell(tblContent);
-		});
+    	tblColColor.setCellFactory( column -> new HighlightingButtonCell(tblContent));
     	
     	btnText.setValue(Color.web(preferences.get(Highlighting.THEME_TEXTCOLOR, "#ffffff")));
     	btnBackground.setValue(Color.web(preferences.get(Highlighting.THEME_BACKGROUNDCOLOR, "#000000")));
@@ -90,24 +83,24 @@ public class HighlightingController {
     	tblContent.setItems(highlightings);
     }
     
-    public void init( Preferences preferences ){
+    void init(Preferences preferences){
     	this.preferences = preferences;
     }
     
-    @FXML void onAddEntry(ActionEvent event) {
+    @FXML void onAddEntry() {
     	highlightings.add(
     			new Highlighting("CHANGE ME!",btnText.getValue(),btnBackground.getValue()));
     }
 
-    @FXML void onRemoveEntry(ActionEvent event) {
+    @FXML void onRemoveEntry() {
     	highlightings.remove(tblContent.getSelectionModel().getSelectedIndex());
     }
 
-    @FXML void onCancel(ActionEvent event) {
+    @FXML void onCancel() {
     	((Stage)btnCancel.getScene().getWindow()).close();
     }
 
-    @FXML void onOK(ActionEvent event) {
+    @FXML void onOK() {
     	//
     	//update main theme
         try {
@@ -176,7 +169,7 @@ public class HighlightingController {
 			if (!empty) {
 				//
 				//
-	            Highlighting currentHighlighting = getTableRow() == null ? null : (Highlighting)getTableRow().getItem();
+	            Highlighting currentHighlighting = getTableRow() == null ? null : getTableRow().getItem();
 				if( currentHighlighting != null ){	
 					
 					if( !currentHighlighting.textColorProperty().getValue().toString().equals(
@@ -202,7 +195,7 @@ public class HighlightingController {
 		}
 
 		@Override public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
-			Highlighting currentHighlighting = getTableRow() == null ? null : (Highlighting)getTableRow().getItem();
+			Highlighting currentHighlighting = getTableRow() == null ? null : getTableRow().getItem();
 			if( currentHighlighting != null ){	
 				currentHighlighting.backgroundColorProperty().set(btnBgColor.getValue());
 			}
@@ -226,7 +219,7 @@ public class HighlightingController {
 			{
 				setText(item);
 	            setGraphic(null);
-	            Highlighting currentTask = getTableRow() == null ? null : (Highlighting)getTableRow().getItem();
+	            Highlighting currentTask = getTableRow() == null ? null : getTableRow().getItem();
 	            if( currentTask != null ){
             		
 	            	setStyle("-fx-background-color: "
@@ -246,11 +239,11 @@ public class HighlightingController {
 		}
 		@Override public void commitEdit(String newValue) {
 			super.commitEdit(newValue);
-			((Highlighting) getTableRow().getItem()).setText(newValue);
+			getTableRow().getItem().setText(newValue);
 		}
 
 		@Override public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
-			Highlighting currentTask = getTableRow() == null ? null : (Highlighting)getTableRow().getItem();
+			Highlighting currentTask = getTableRow() == null ? null : getTableRow().getItem();
             if( currentTask != null ){
             	setStyle("-fx-background-color: "
         				+currentTask.backgroundColorProperty().getValue().toString().replace("0x", "#"));

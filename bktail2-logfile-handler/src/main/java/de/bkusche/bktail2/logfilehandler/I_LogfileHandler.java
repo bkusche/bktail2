@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Björn Kusche
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,15 +24,15 @@ import java.util.List;
  */
 public interface I_LogfileHandler {
 
-	public void addFileToObserve(File filepath);
+	void addFileToObserve(File filepath);
 	
-	public void stopObserving();
+	void stopObserving();
 	
-	public List<String> readLines( LogfileReadInput logfileReadInput );
+	List<String> readLines(LogfileReadInput logfileReadInput);
 	
-	public void addLogfileEventListener( I_LogfileEventListener l );
+	void addLogfileEventListener(I_LogfileEventListener l);
 	
-	public void removeLogfileEventListener( I_LogfileEventListener l );
+	void removeLogfileEventListener(I_LogfileEventListener l);
 	
-	public List<Integer> searchInLogFile( LogfileSearchInput logfileSearchInput );
+	List<Integer> searchInLogFile(LogfileSearchInput logfileSearchInput);
 }

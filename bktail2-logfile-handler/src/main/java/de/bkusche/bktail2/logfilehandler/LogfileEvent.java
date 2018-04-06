@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Björn Kusche
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,6 @@ public class LogfileEvent {
 	private String name;
 	private Path path;
 	private long lines;
-	private long delta;
 	
 	public LogfileEvent() {
 	
@@ -43,23 +42,15 @@ public class LogfileEvent {
 	public String getName() {
 		return name;
 	}
-	public void setName(String name) {
-		this.name = name;
-	}
+
 	public Path getPath() {
 		return path;
 	}
-	public void setPath(Path path) {
-		this.path = path;
-	}
+
 	public long getLines() {
 		return lines;
 	}
 	public void setLines(long lines) {
-		this.delta = lines - this.lines;
 		this.lines = lines;
-	}
-	public long getDelta() {
-		return delta;
 	}
 }

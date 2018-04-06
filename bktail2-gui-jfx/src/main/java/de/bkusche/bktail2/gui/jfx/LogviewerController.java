@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Björn Kusche
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,6 +55,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author bkusche
  *
  */
+@SuppressWarnings("unchecked")
 public class LogviewerController implements I_LogfileEventListener, I_TailActionEventListener{
 
 	private static final String EMPTY = "";
@@ -98,7 +99,7 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 		ignoreCase = false;
 	}
 	
-	public void init( File logfile, Theme theme, List<Highlighting> highlightings ){
+	void init(File logfile, Theme theme, List<Highlighting> highlightings){
 		this.theme = theme;
 		this.highlightings = highlightings;
 		logfileHandler.addFileToObserve(logfile);
@@ -126,9 +127,8 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 			@Override protected String doRemove(int index) {return null;}
 		};
 		
-		logContent.setCellFactory(p -> {
-			ListCell<String> cell = new ListCell<>(){
-				@Override protected void updateItem(String item, boolean empty) {
+		logContent.setCellFactory(p -> new ListCell<String>(){
+			@Override protected void updateItem(String item, boolean empty) {
 				super.updateItem(item, empty);
 				setStyle("-fx-background-color: "+theme.getBackgroundColor().toString().replace("0x", "#"));
 				setTextFill(theme.getForegroundColor());
@@ -141,9 +141,7 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 					setTextFill(h.textColorProperty().getValue());
 					return;
 				}
-				}
-			};
-			return cell;
+			}
 		});
 		logContent.setStyle("-fx-font-family: monospace;"
 				+ "-fx-font-size: 11;");
@@ -187,9 +185,7 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 						prevFirst = first;
 						
 						//force reloading - hack
-						Platform.runLater( () -> {
-							observableList.remove(0);
-						});
+						Platform.runLater( () -> observableList.remove(0));
 					}
 						
 					Thread.sleep(100L);
@@ -219,18 +215,14 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 		this.event = event;
 		load();
 		//force reloading - hack
-		Platform.runLater( () -> {
-			observableList.remove(0);
-		});
+		Platform.runLater( () -> observableList.remove(0));
 	}
 
 	@Override public void onModify(LogfileEvent event) {
 		this.event = event;
 		load();
 		//force reloading - hack
-		Platform.runLater( () -> {
-			observableList.remove(0);
-		});
+		Platform.runLater( () -> observableList.remove(0));
 	}
 
 	@Override public void onDelete(LogfileEvent event) {
@@ -238,18 +230,15 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 		this.first = 0;
 		this.last = 0;
 
-		Platform.runLater( () -> {
-			observableList.remove(0);
-		});
-		return;
+		Platform.runLater( () -> observableList.remove(0));
 	}
 
-	public void dispose(){
+	void dispose(){
 		running.set(false);
 		logfileHandler.stopObserving();
 	}
 
-	public LogfileEvent getEvent() {
+	LogfileEvent getEvent() {
 		return event;
 	}
 
@@ -269,7 +258,7 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 		}
     }
 
-	@FXML void previousSearchEntry(ActionEvent event) {
+	@FXML void previousSearchEntry() {
     	if( searchHitPos == 0 ) 
     		return;
     	
@@ -284,7 +273,7 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
     	searchHitLabel.setText(searchHitPos+1+" of "+searchHitList.size()+" matches");
     }
 
-    @FXML void nextSearchEntry(ActionEvent event) {
+    @FXML void nextSearchEntry() {
     	if( searchHitPos >= searchHitList.size()-1 ) 
     		return;
 		
@@ -299,11 +288,11 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
     	searchHitLabel.setText(searchHitPos+1+" of "+searchHitList.size()+" matches");
     }
 
-    @FXML void hideSearchArea(ActionEvent event) {
+    @FXML void hideSearchArea() {
     	toggleExtendableSearch();
     }
 
-    @FXML void toggleIgnoreCase(ActionEvent event) {
+    @FXML void toggleIgnoreCase() {
     	ignoreCase = !ignoreCase;
     	performSearch();
     }
@@ -314,7 +303,7 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 			selectSearchHit((int) (event.getLines()-1));
 	}
 
-	public void setTailActionEventListener(I_TailActionEventListener tailActionEventListener) {
+	void setTailActionEventListener(I_TailActionEventListener tailActionEventListener) {
 		this.tailActionEventListener = tailActionEventListener;
 	}
 
@@ -325,10 +314,9 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 		searchHitPos = 0; //reset
 		if( searchHitList.isEmpty() ){
 			searchHitLabel.setText("No result");
-			return;
 		}
 		else {
-			nextSearchEntry(null);
+			nextSearchEntry();
 		}	
 	}
     
@@ -385,8 +373,7 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 		timelineBounce.getKeyFrames().add(kf1);
 		//
 		// Event handler to call bouncing effect after the scroll down is finished.
-		EventHandler<ActionEvent> handler = event -> timelineBounce.play();
-		return handler;
+		return event1 -> timelineBounce.play();
 	}
 	
 	
@@ -404,8 +391,8 @@ public class LogviewerController implements I_LogfileEventListener, I_TailAction
 			content = logfileHandler.readLines(new LogfileReadInput(
 					event.getPath(), 
 					from,
-					to,
-					event.getLines()));
+					to
+            ));
 			
 			System.out.println( "loading first: "+first+" : last: "+last
 					+" - from: "+from+" : to: "+to+" = "+(to-from)+" in "+(System.currentTimeMillis()-start)+" ms");

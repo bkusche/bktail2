@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Björn Kusche
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,8 +21,8 @@ package de.bkusche.bktail2.logfilehandler;
  */
 public interface I_LogfileEventListener {
 
-	public void onCreate( LogfileEvent event );
-	public void onModify( LogfileEvent event );
-	public void onDelete( LogfileEvent event );
+	void onCreate(LogfileEvent event);
+	void onModify(LogfileEvent event);
+	void onDelete(LogfileEvent event);
 	
 }

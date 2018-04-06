@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Björn Kusche
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,33 +26,23 @@ public class LogfileReadInput {
 	private Path path;
 	private long from;
 	private long to;
-	private long lines;
-	
+
 	public LogfileReadInput() {
 	
 	}
 
-	public LogfileReadInput(Path path, long from, long to, long lines) {
+	public LogfileReadInput(Path path, long from, long to) {
 		this.path = path;
 		this.from = from;
 		this.to = to;
-		this.lines = lines;
 	}
 
 	public Path getPath() {
 		return path;
 	}
 
-	public void setPath(Path path) {
-		this.path = path;
-	}
-
 	public long getFrom() {
 		return from;
-	}
-
-	public void setFrom(long from) {
-		this.from = from;
 	}
 
 	public long getTo() {
@@ -63,13 +53,5 @@ public class LogfileReadInput {
 		this.to = to;
 	}
 
-	public long getLines() {
-		return lines;
-	}
 
-	public void setLines(long lines) {
-		this.lines = lines;
-	}
-	
-	
 }

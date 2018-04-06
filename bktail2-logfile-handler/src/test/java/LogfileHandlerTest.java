@@ -197,7 +197,7 @@ public class LogfileHandlerTest {
 	public void illegalRange_readLines() throws Exception{
 		I_LogfileHandler logfileHandler = new LogfileHandlerImpl();
 		logfileHandler.addFileToObserve(new File( FILEPATH ));
-		logfileHandler.readLines(new LogfileReadInput(new File( FILEPATH ).toPath(),10L,0L,0L));
+		logfileHandler.readLines(new LogfileReadInput(new File( FILEPATH ).toPath(),10L,0L));
 	}
 	
 	@Test
@@ -211,7 +211,7 @@ public class LogfileHandlerTest {
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
-		logfileHandler.readLines(new LogfileReadInput(new File( FILEPATH ).toPath(),1L,2L,0L));
+		logfileHandler.readLines(new LogfileReadInput(new File( FILEPATH ).toPath(),1L,2L));
 	}
 	
 	@Test

@@ -1,5 +1,5 @@
 package de.bkusche.bktail2.logfilehandler.impl;
-/**
+/*
  * Copyright 2016 Björn Kusche
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,16 +25,14 @@ import java.io.RandomAccessFile;
  */
 public class BufferedRandomAccessFile extends RandomAccessFile {
 
-	private byte[] byteBuffer = null;
-	private int bufferLength = -1;
-	private int maxRead = -1;
-	private int buffPos = -1;
-	private StringBuilder sb = null;
+	private byte[] byteBuffer;
+	private int maxRead;
+	private int buffPos;
+	private StringBuilder sb;
 
 	public BufferedRandomAccessFile(File file, String mode, int bufferlen) throws FileNotFoundException {
 		super(file, mode);
-		bufferLength = bufferlen;
-		byteBuffer = new byte[bufferLength];
+		byteBuffer = new byte[bufferlen];
 		maxRead = 0;
 		buffPos = 0;
 		sb = new StringBuilder("0");
@@ -115,10 +113,6 @@ public class BufferedRandomAccessFile extends RandomAccessFile {
 			super.seek(pos);
 			maxRead = readChunk();
 		}
-	}
-
-	public int getbuffpos() {
-		return buffPos;
 	}
 
 	private int readChunk() throws IOException {

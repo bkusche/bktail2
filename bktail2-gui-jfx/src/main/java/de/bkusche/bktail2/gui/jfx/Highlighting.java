@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Björn Kusche
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,14 +29,14 @@ import javafx.scene.paint.Color;
  *
  */
 public class Highlighting {
-	public static final String THEME_TEXTCOLOR = "THEME_TEXTCOLOR";
-	public static final String THEME_BACKGROUNDCOLOR = "THEME_BACKGROUNDCOLOR";
-	public static final String HIGHLIGHTING_ENTRY = "HIGHLIGHTING_ENTRY";
-    public static final String HIGHLIGHTING_VALUESDELIMITER = ";";
-    public static final String HIGHLIGHTING_VALUEDELIMITER = "->";
-    public static final String HIGHLIGHTING_VALUE_TEXT = "HIGHLIGHTING_VALUE_TEXT";
-    public static final String HIGHLIGHTING_VALUE_FG = "HIGHLIGHTING_VALUE_FG";
-    public static final String HIGHLIGHTING_VALUE_BG = "HIGHLIGHTING_VALUE_BG";
+	static final String THEME_TEXTCOLOR = "THEME_TEXTCOLOR";
+	static final String THEME_BACKGROUNDCOLOR = "THEME_BACKGROUNDCOLOR";
+	static final String HIGHLIGHTING_ENTRY = "HIGHLIGHTING_ENTRY";
+    static final String HIGHLIGHTING_VALUESDELIMITER = ";";
+    static final String HIGHLIGHTING_VALUEDELIMITER = "->";
+    static final String HIGHLIGHTING_VALUE_TEXT = "HIGHLIGHTING_VALUE_TEXT";
+    static final String HIGHLIGHTING_VALUE_FG = "HIGHLIGHTING_VALUE_FG";
+    static final String HIGHLIGHTING_VALUE_BG = "HIGHLIGHTING_VALUE_BG";
 	
 	private StringProperty text;
 	private ObjectProperty<Color> textColor;
@@ -47,7 +47,7 @@ public class Highlighting {
 	 * @param preferences
 	 * @param highlightings
 	 */
-	public static void loadFromPreferences(Preferences preferences, List<Highlighting> highlightings){
+	static void loadFromPreferences(Preferences preferences, List<Highlighting> highlightings){
 		try {
 			for( String key: preferences.keys() ){
 				if( !key.startsWith(HIGHLIGHTING_ENTRY)) continue;
@@ -82,38 +82,34 @@ public class Highlighting {
 	}
 
 
-	public final StringProperty textProperty() {
+	final StringProperty textProperty() {
 		return this.text;
 	}
 	
 
-	public final java.lang.String getText() {
+	final java.lang.String getText() {
 		return this.textProperty().get();
 	}
 	
 
-	public final void setText(final java.lang.String text) {
+	final void setText(final java.lang.String text) {
 		this.textProperty().set(text);
 	}
 	
-	public final void setTextColor( Color textColor){
+	final void setTextColor( Color textColor){
 		this.textColor.setValue(textColor);
 	}
 	
-	public final void setBackgroundColor( Color backgroundColor ){
+	final void setBackgroundColor( Color backgroundColor ){
 		this.backgroundColor.setValue(backgroundColor);
 	}
 	
-	public final ObjectProperty<Color> textColorProperty(){
+	final ObjectProperty<Color> textColorProperty(){
 		return this.textColor;
 	}
 	
-	public final ObjectProperty<Color> backgroundColorProperty(){
+	final ObjectProperty<Color> backgroundColorProperty(){
 		return this.backgroundColor;
 	}
 
-	
-//	public final int getTextColor(){
-//		return this.textColorProperty().
-//	}
 }

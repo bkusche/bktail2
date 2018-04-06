@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Björn Kusche
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@ package de.bkusche.bktail2.gui.jfx;
 
 import de.bkusche.bktail2.logfilehandler.LogfileEvent;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -35,7 +34,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.prefs.Preferences;
@@ -91,9 +89,7 @@ public class TabbedMainController{
 
 		//
         //registering a shutdown hook thread
-		Runtime.getRuntime().addShutdownHook( new Thread(() -> {
-            shutdown();
-        }));
+		Runtime.getRuntime().addShutdownHook( new Thread(this::shutdown));
 	}
 	
 	@FXML void onDragDroppedEvent(DragEvent e){
@@ -105,7 +101,6 @@ public class TabbedMainController{
         }
         e.setDropCompleted(success);
         e.consume();
-		
 	}
 
 	@FXML void mouseDragOver(final DragEvent e) {
@@ -126,12 +121,12 @@ public class TabbedMainController{
         }
     }
 	
-	@FXML void mouseDragExit(final DragEvent e) {
+	@FXML void mouseDragExit() {
 		tabpane.setStyle("-fx-border-color: #C6C6C6;");//TODO move to css
 	}
 
 	
-	@FXML void onOpenLogFile(ActionEvent event) {
+	@FXML void onOpenLogFile() {
 		FileChooser fileChooser = new FileChooser();
 		List<File> files = fileChooser.showOpenMultipleDialog(new Stage());
 		if( files == null || files.isEmpty() ) return;
@@ -139,7 +134,7 @@ public class TabbedMainController{
     }
 
 	
-	@FXML void onOpenHighlighting(ActionEvent event) {
+	@FXML void onOpenHighlighting() {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(highlightingFxmlFile));
 			loader.setControllerFactory( p ->{
@@ -148,7 +143,7 @@ public class TabbedMainController{
 				return hc;
 			});
 			Stage stage = new Stage();
-			Parent rootNode = (Parent) loader.load();
+			Parent rootNode = loader.load();
 			Scene scene = new Scene(rootNode);
 
 			scene.getStylesheets().add(TabbedMainController.class.getResource("/styles/styles.css").toExternalForm());
@@ -192,13 +187,11 @@ public class TabbedMainController{
 			else {
 				tab.setOnClosed(e -> {
 					((LogviewerController) loader.getController()).dispose();
-					tabpane.getTabs().remove(e.getSource());
+					tabpane.getTabs().remove(tab);
 				});
 				tabpane.getTabs().add(tab);
 			}
-			Platform.runLater( () -> {
-				tab.setChecked(checked);
-			});
+			Platform.runLater( () -> tab.setChecked(checked));
 		} catch (Throwable ex) {
 			// TODO display error message
 			ex.printStackTrace();
@@ -209,9 +202,10 @@ public class TabbedMainController{
         System.out.println("performing restoreOpenTabs....");
 		try {
 			Set<String> keys = new HashSet<>();
-			Arrays.stream(prefs.keys()).filter(f -> f.startsWith(WINDOW)).sorted().forEach(key -> {
-				keys.add(key.split("\\.")[0]);
-			});
+			Arrays.stream(prefs.keys())
+					.filter(f -> f.startsWith(WINDOW)).sorted()
+					.forEach(key -> keys.add(key.split("\\.")[0]));
+
 			keys.stream().sorted().forEach(key -> {
 				int window = Integer.valueOf(key.split("\\.")[0].split("&")[0].split("_")[1]);
 				int tab = Integer.valueOf(key.split("\\.")[0].split("&")[0].split("_")[1]);

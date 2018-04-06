@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Björn Kusche
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@ public class MainApp extends Application {
 
 	//-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/bktail2_heapdump`${current_date}`.hprof
 	//-XX:+DisableAttachMechanism
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		launch(args);
 	}
 
@@ -38,7 +38,7 @@ public class MainApp extends Application {
 		String fxmlFile = "/fxml/TabbedMainView.fxml";
 
 		FXMLLoader loader = new FXMLLoader();
-		Parent rootNode = (Parent) loader.load(MainApp.class.getResourceAsStream(fxmlFile));
+		Parent rootNode = loader.load(MainApp.class.getResourceAsStream(fxmlFile));
 		Scene scene = new Scene(rootNode, 1024, 768);
 
 		scene.getStylesheets().add(MainApp.class.getResource("/styles/styles.css").toExternalForm());

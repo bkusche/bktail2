@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Björn Kusche
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,27 +21,27 @@ import javafx.scene.paint.Color;
  * @author bkusche
  *
  */
-public class Theme {
+class Theme {
 
 	private Color foregroundColor;
 	private Color backgroundColor;
 	
-	public Theme(Color foregroundColor, Color backgroundColor) {
+	Theme(Color foregroundColor, Color backgroundColor) {
 		super();
 		this.foregroundColor = foregroundColor;
 		this.backgroundColor = backgroundColor;
 	}
 	
-	public Color getForegroundColor() {
+	Color getForegroundColor() {
 		return foregroundColor;
 	}
-	public void setForegroundColor(Color foregroundColor) {
+	void setForegroundColor(Color foregroundColor) {
 		this.foregroundColor = foregroundColor;
 	}
-	public Color getBackgroundColor() {
+	Color getBackgroundColor() {
 		return backgroundColor;
 	}
-	public void setBackgroundColor(Color backgroundColor) {
+	void setBackgroundColor(Color backgroundColor) {
 		this.backgroundColor = backgroundColor;
 	}
 	

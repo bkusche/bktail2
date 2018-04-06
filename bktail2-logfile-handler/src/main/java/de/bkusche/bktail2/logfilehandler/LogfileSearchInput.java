@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Björn Kusche
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,22 +38,10 @@ public class LogfileSearchInput {
 		return path;
 	}
 
-	public void setPath(Path path) {
-		this.path = path;
-	}
-
 	public String getSearchPattern() {
 		return searchPattern;
 	}
 
-	public void setSearchPattern(String searchPattern) {
-		this.searchPattern = searchPattern;
-	}
-	
-	public void setIgnoreCase(boolean ignoreCase) {
-		this.ignoreCase = ignoreCase;
-	}
-	
 	public boolean isIgnoreCase() {
 		return ignoreCase;
 	}

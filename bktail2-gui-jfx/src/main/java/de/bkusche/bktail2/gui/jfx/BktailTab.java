@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2018 Björn Kusche
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,6 @@ import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.ImageView;
@@ -76,19 +75,19 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
         markerStage.setScene(new Scene(markerStack));
     }
 
-    public static void addMainTabpane(TabPane tabPane) {
+    static void addMainTabpane(TabPane tabPane) {
         tabPanes.put(tabPanes.size(),tabPane);
     }
 
-    public static List<TabPane> getTabPanes() {
+    static List<TabPane> getTabPanes() {
         return tabPanes.keySet().stream().sorted().map(tabPanes::get).collect(Collectors.toList());
     }
 
-    public static void createDetachedStage(double x, double y, BktailTab bktailTab) {
+    static void createDetachedStage(double x, double y, BktailTab bktailTab) {
         bktailTab.detachNewStage(x, y, false, bktailTab);
     }
 
-    public BktailTab(String text) {
+    BktailTab(String text) {
         checkBox = new CheckBox();
         checkBox.setOnAction(event -> {
             if( tailActionEventListener != null)
@@ -187,15 +186,15 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
         });
     }
 
-    public void setTailActionEventListener(I_TailActionEventListener tailActionEventListener) {
+    void setTailActionEventListener(I_TailActionEventListener tailActionEventListener) {
         this.tailActionEventListener = tailActionEventListener;
     }
 
-    public LogviewerController getLogviewerController() {
+    LogviewerController getLogviewerController() {
         return logviewerController;
     }
 
-    public void setLogviewerController(LogviewerController logviewerController) {
+    void setLogviewerController(LogviewerController logviewerController) {
         this.logviewerController = logviewerController;
     }
 
@@ -204,11 +203,11 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
         checkBox.setSelected(selected);
     }
 
-    public boolean isChecked() {
+    boolean isChecked() {
         return checkBox.isSelected();
     }
 
-    public void setChecked( boolean checked ){
+    void setChecked(boolean checked){
         checkBox.setSelected(checked);
         if( tailActionEventListener != null)
             tailActionEventListener.onTailChangedActionEvent(checkBox.isSelected());
@@ -249,10 +248,8 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
             }
 
             Rectangle2D lastTabRect = getAbsoluteRect(tabPane.getTabs().get(tabPane.getTabs().size() - 1));
-            if(screenPoint.getX() < (firstTabRect.getMinX() + firstTabRect.getWidth() / 2)) {
-                tabInsertIndex = 0;
-            }
-            else if(screenPoint.getX() > (lastTabRect.getMaxX() - lastTabRect.getWidth() / 2)) {
+
+            if(screenPoint.getX() > (lastTabRect.getMaxX() - lastTabRect.getWidth() / 2)) {
                 tabInsertIndex = tabPane.getTabs().size();
             }
             else {
@@ -280,7 +277,7 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
         TabPane pane = new TabPane();
         tabPanes.put(tabPanes.size(),pane);
         newStage.setOnCloseRequest(w -> tabPanes.remove(pane));
-        //newStage.setOnHiding(w -> tabPanes.remove(pane));
+
         if( removeFromOld)
             getTabPane().getTabs().remove(bktailTab);
         pane.getTabs().add(bktailTab);
@@ -329,16 +326,16 @@ public class BktailTab extends Tab implements I_TailActionEventListener {
         private final int index;
         private final TabPane insertPane;
 
-        public InsertData(int index, TabPane insertPane) {
+        InsertData(int index, TabPane insertPane) {
             this.index = index;
             this.insertPane = insertPane;
         }
 
-        public int getIndex() {
+        int getIndex() {
             return index;
         }
 
-        public TabPane getInsertPane() {
+        TabPane getInsertPane() {
             return insertPane;
         }
 
