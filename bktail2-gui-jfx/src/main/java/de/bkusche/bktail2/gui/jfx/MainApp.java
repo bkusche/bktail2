@@ -33,13 +33,13 @@ public class MainApp extends Application {
 	//-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/bktail2_heapdump`${current_date}`.hprof
 	//-XX:+DisableAttachMechanism
 	public static void main(String[] args) {
-		if(Boolean.valueOf(System.getProperty("verbose","true"))){
+		if(!Boolean.valueOf(System.getProperty("verbose","false"))){
 			try( PrintStream ps = new PrintStream(new OutputStream() { public void write(int b) {}}) ) {
 				System.setOut(ps);
 				System.setErr(ps);
 			}
 		}
-		
+
 		launch(args);
 	}
 
