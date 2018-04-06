@@ -21,6 +21,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.PrintStream;
+import java.io.OutputStream;
+
 /**
  * @author bkusche
  *
@@ -30,6 +33,13 @@ public class MainApp extends Application {
 	//-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/bktail2_heapdump`${current_date}`.hprof
 	//-XX:+DisableAttachMechanism
 	public static void main(String[] args) {
+		if(Boolean.valueOf(System.getProperty("verbose","true"))){
+			try( PrintStream ps = new PrintStream(new OutputStream() { public void write(int b) {}}) ) {
+				System.setOut(ps);
+				System.setErr(ps);
+			}
+		}
+		
 		launch(args);
 	}
 
